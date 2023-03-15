@@ -1,0 +1,309 @@
+[2023-02-21 11:20:58] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-02-21 11:20:58] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-02-21 11:20:58] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-02-21 11:20:58] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-02-21 11:20:59] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-02-21 11:20:59] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-02-21 11:20:59] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-02-21 11:20:59] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-02-21 11:20:59] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-02-21 11:20:59] [CONFIGURAR] Clave encontrada 
+[2023-02-21 11:20:59] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-02-21 11:20:59] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-02-21 11:20:59] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-02-21 11:20:59] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:20:59] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:20:59] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-02-21 11:21:02] [ADVERTENCIA] LOGIN: Fallo, ya se ha iniciado sesión 
+[2023-02-21 11:21:02] [ADVERTENCIA] LOGIN: Fallo, ya se ha iniciado sesión 
+[2023-02-21 11:21:20] [INFORMACIÓN] START REPLAY: Intento de reproduccion del canal 4 desde 1674598150 a 1674598590 
+[2023-02-21 11:21:20] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:21:20] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:21:20] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:21:20] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:21:20] [INFORMACIÓN] REPLAY CUT: Se va a proceder a cortar 1 archivo de datos 
+[2023-02-21 11:21:20] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortada correctamente 
+[2023-02-21 11:21:20] [INFORMACIÓN] REPLAY MERGE: Se va a proceder a concatenar 7 paquete/s 
+[2023-02-21 11:21:21] [INFORMACIÓN] REPLAY MERGE: Grabación especial, se han concatenado varias grabaciones 
+[2023-02-21 11:21:21] [INFORMACIÓN] REPLAY: la grabación tiene un inicio sin tráfico grabado, que comenzará a enviarse en 21 segundos 
+[2023-02-21 11:21:21] [INFORMACIÓN] START REPLAY: reproducción 1 iniciada del canal 4 desde 24-01-2023 23:09:10 a 24-01-2023 23:16:30 
+[2023-02-21 11:21:42] [INFORMACIÓN] REPLAY: tras el inicio sin tráfico, la reproducción 1 se comenzará a enviar 
+[2023-02-21 11:21:43] [INFORMACIÓN] START REPLAY: reproducción iniciada correctamente con tcpreplay 
+[2023-02-21 11:22:09] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:22:09] [INFORMACIÓN] DELETION MECHANISM: Hay 232MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:23:03] [INFORMACIÓN] STOP REPLAY: Intento de parada de reproduccion 1 
+[2023-02-21 11:23:03] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:23:12] [INFORMACIÓN] START REPLAY: Intento de reproduccion del canal 4 desde 1674598170 a 1674598590 
+[2023-02-21 11:23:12] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:23:12] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:23:12] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:23:13] [INFORMACIÓN] START REPLAY: reproducción iniciada del canal 4 desde 24-01-2023 23:09:30 a 24-01-2023 23:16:30 
+[2023-02-21 11:23:19] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:23:19] [INFORMACIÓN] DELETION MECHANISM: Hay 260MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:24:29] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:24:29] [INFORMACIÓN] DELETION MECHANISM: Hay 260MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:24:35] [INFORMACIÓN] JUMP REPLAY: Intento de salto de la reproduccion 1 al segundo 300 
+[2023-02-21 11:24:35] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:24:35] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:24:35] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:24:35] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:24:36] [INFORMACIÓN] JUMP REPLAY: reproducción 1 saltada al segundo 300 
+[2023-02-21 11:24:56] [INFORMACIÓN] JUMP REPLAY: Intento de salto de la reproduccion 1 al segundo 800 
+[2023-02-21 11:24:56] [ADVERTENCIA] JUMP REPLAY: Error, se quiere saltar al segundo 800 de una reproducción de 420 segundos 
+[2023-02-21 11:25:05] [INFORMACIÓN] JUMP REPLAY: Intento de salto de la reproduccion 1 al segundo 0 
+[2023-02-21 11:25:05] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:25:05] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:25:05] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:25:05] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:25:06] [INFORMACIÓN] JUMP REPLAY: reproducción 1 saltada al segundo 0 
+[2023-02-21 11:25:39] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:25:39] [INFORMACIÓN] DELETION MECHANISM: Hay 260MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:26:49] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:26:49] [INFORMACIÓN] DELETION MECHANISM: Hay 260MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:27:59] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:27:59] [INFORMACIÓN] DELETION MECHANISM: Hay 260MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:28:34] [INFORMACIÓN] JUMP REPLAY: Intento de salto de la reproduccion 1 al segundo 0 
+[2023-02-21 11:28:34] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:28:34] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:28:34] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:28:34] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:28:36] [INFORMACIÓN] JUMP REPLAY: reproducción 1 saltada al segundo 0 
+[2023-02-21 11:28:45] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x1 
+[2023-02-21 11:28:45] [ADVERTENCIA] SPEED REPLAY: Error, se quiere cambiar a velocidad x1.0 y la reproducción ya tiene esta velocidad 
+[2023-02-21 11:28:50] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x0.5 
+[2023-02-21 11:28:50] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:28:50] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:28:50] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:28:50] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:28:51] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x0.5 
+[2023-02-21 11:29:09] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:29:09] [INFORMACIÓN] DELETION MECHANISM: Hay 271MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:29:17] [ADVERTENCIA] SPEED REPLAY: Error, syntax incorrecto 
+[2023-02-21 11:29:21] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x1 
+[2023-02-21 11:29:21] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:29:21] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:29:21] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:29:22] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:29:23] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x1.0 
+[2023-02-21 11:29:23] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x10 
+[2023-02-21 11:29:23] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 11:29:23] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 11:29:23] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 11:29:23] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 11:29:24] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x10.0 
+[2023-02-21 11:30:08] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:30:10] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:30:19] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:30:19] [INFORMACIÓN] DELETION MECHANISM: Hay 286MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:30:31] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:30:32] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:30:40] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:31:09] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 11:31:29] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 11:31:29] [INFORMACIÓN] DELETION MECHANISM: Hay 286MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 11:31:34] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-02-21 12:00:19] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-02-21 12:00:19] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-02-21 12:00:19] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-02-21 12:00:19] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-02-21 12:00:19] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-02-21 12:00:19] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-02-21 12:00:19] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-02-21 12:00:19] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-02-21 12:00:19] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-02-21 12:00:19] [CONFIGURAR] Clave encontrada 
+[2023-02-21 12:00:19] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-02-21 12:00:19] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-02-21 12:00:19] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-02-21 12:00:19] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:00:19] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:00:35] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-02-21 12:00:38] [INFORMACIÓN] START REPLAY: Intento de reproduccion del canal 4 desde 1674598170 a 1674598590 
+[2023-02-21 12:00:38] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 12:00:38] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 12:00:39] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 12:00:40] [INFORMACIÓN] START REPLAY: reproducción iniciada del canal 4 desde 24-01-2023 23:09:30 a 24-01-2023 23:16:30 
+[2023-02-21 12:01:29] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:01:29] [INFORMACIÓN] DELETION MECHANISM: Hay 144MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:01:56] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x0.5 
+[2023-02-21 12:01:56] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 12:01:56] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 12:01:57] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 12:01:57] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 12:01:58] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x0.5 
+[2023-02-21 12:02:39] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:02:39] [INFORMACIÓN] DELETION MECHANISM: Hay 154MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:02:45] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x10 
+[2023-02-21 12:02:45] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 12:02:45] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 12:02:45] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 12:02:46] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 12:02:47] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x10.0 
+[2023-02-21 12:03:25] [ADVERTENCIA] REPRODUCCIONES: No hay ninguna reproducción activa 
+[2023-02-21 12:03:49] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:03:49] [INFORMACIÓN] DELETION MECHANISM: Hay 159MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:04:34] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-02-21 12:07:57] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-02-21 12:07:57] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-02-21 12:07:57] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-02-21 12:07:57] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-02-21 12:07:57] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-02-21 12:07:57] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-02-21 12:07:57] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-02-21 12:07:57] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-02-21 12:07:57] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-02-21 12:07:57] [CONFIGURAR] Clave encontrada 
+[2023-02-21 12:07:57] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-02-21 12:07:57] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-02-21 12:07:57] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-02-21 12:07:57] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:07:57] [INFORMACIÓN] DELETION MECHANISM: Hay 159MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:08:01] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-02-21 12:08:04] [INFORMACIÓN] START REPLAY: Intento de reproduccion del canal 4 desde 1674598170 a 1674598590 
+[2023-02-21 12:08:04] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 12:08:04] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 12:08:04] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 12:08:05] [INFORMACIÓN] START REPLAY: reproducción iniciada del canal 4 desde 24-01-2023 23:09:30 a 24-01-2023 23:16:30 
+[2023-02-21 12:08:29] [INFORMACIÓN] SPEED REPLAY: Intento de cambio de velocidad de la reproduccion 1 a velocidad x10 
+[2023-02-21 12:08:29] [INFORMACIÓN] BD: Se ha consultado información con la base de datos satisfactoriamente 
+[2023-02-21 12:08:29] [INFORMACIÓN] REPLAY CUT: Se van a proceder a cortar 2 archivos de datos 
+[2023-02-21 12:08:29] [INFORMACIÓN] REPLAY CUT: Capturas de datos cortadas correctamente 
+[2023-02-21 12:08:29] [INFORMACIÓN] STOP REPLAY: Reproducción 1 detenida 
+[2023-02-21 12:08:30] [INFORMACIÓN] SPEED REPLAY: velocidad de reproducción 1 cambiada a x10.0 
+[2023-02-21 12:09:07] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:09:07] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:10:17] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:10:17] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:11:27] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:11:27] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:12:37] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:12:37] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:13:47] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:13:47] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:14:57] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:14:57] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:16:07] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:16:07] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:17:17] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:17:17] [INFORMACIÓN] DELETION MECHANISM: Hay 168MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-02-21 12:18:27] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-02-21 12:18:27] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:35:09] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-03-07 21:35:09] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-03-07 21:35:09] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-03-07 21:35:09] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-03-07 21:35:09] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-03-07 21:35:09] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-03-07 21:35:09] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-03-07 21:35:09] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-03-07 21:35:09] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-03-07 21:35:09] [CONFIGURAR] Clave encontrada 
+[2023-03-07 21:35:09] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-03-07 21:35:09] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-03-07 21:35:09] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-03-07 21:35:09] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:35:09] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:35:20] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-03-07 21:35:32] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:35:33] [INFORMACIÓN] START RECORDING: Canal 1 iniciado 
+[2023-03-07 21:36:19] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:36:19] [INFORMACIÓN] DELETION MECHANISM: Hay 150MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:37:04] [INFORMACIÓN] STOP RECORDING: Intento de parada de grabacion en el canal 1 
+[2023-03-07 21:37:04] [INFORMACIÓN] STOP RECORDING: Canal 1 detenido 
+[2023-03-07 21:37:04] [GRAVE  ] STOP RECORDING: Error al detener el canal 1 {java.lang.StringIndexOutOfBoundsException: begin 9, end 3, length 21} 
+[2023-03-07 21:37:29] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:37:29] [INFORMACIÓN] DELETION MECHANISM: Hay 150MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:37:52] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-03-07 21:40:03] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-03-07 21:40:03] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-03-07 21:40:03] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-03-07 21:40:03] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-03-07 21:40:03] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-03-07 21:40:03] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-03-07 21:40:03] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-03-07 21:40:03] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-03-07 21:40:03] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-03-07 21:40:03] [CONFIGURAR] Clave encontrada 
+[2023-03-07 21:40:03] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-03-07 21:40:03] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-03-07 21:40:03] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-03-07 21:40:03] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:40:03] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:40:09] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-03-07 21:40:15] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:40:16] [INFORMACIÓN] START RECORDING: Canal 1 iniciado 
+[2023-03-07 21:41:13] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:41:13] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:41:59] [INFORMACIÓN] STOP RECORDING: Intento de parada de grabacion en el canal 1 
+[2023-03-07 21:41:59] [INFORMACIÓN] STOP RECORDING: Canal 1 detenido 
+[2023-03-07 21:42:08] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-03-07 21:50:34] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-03-07 21:50:34] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-03-07 21:50:34] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-03-07 21:50:34] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-03-07 21:50:34] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-03-07 21:50:34] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-03-07 21:50:34] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-03-07 21:50:34] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-03-07 21:50:34] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-03-07 21:50:34] [CONFIGURAR] Clave encontrada 
+[2023-03-07 21:50:34] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-03-07 21:50:34] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-03-07 21:50:34] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-03-07 21:50:34] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:50:34] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:50:37] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-03-07 21:50:41] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:50:42] [INFORMACIÓN] START RECORDING: Canal 1 iniciado 
+[2023-03-07 21:50:57] [INFORMACIÓN] STOP RECORDING: Intento de parada de grabacion en el canal 1 
+[2023-03-07 21:50:57] [INFORMACIÓN] STOP RECORDING: Canal 1 detenido 
+[2023-03-07 21:51:44] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:51:44] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:52:28] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-03-07 21:52:31] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-03-07 21:52:31] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-03-07 21:52:31] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-03-07 21:52:31] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-03-07 21:52:31] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-03-07 21:52:31] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-03-07 21:52:31] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-03-07 21:52:31] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-03-07 21:52:31] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-03-07 21:52:31] [CONFIGURAR] Clave encontrada 
+[2023-03-07 21:52:31] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-03-07 21:52:31] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-03-07 21:52:31] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-03-07 21:52:32] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:52:32] [INFORMACIÓN] DELETION MECHANISM: Hay 115MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:52:35] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-03-07 21:52:37] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:52:38] [INFORMACIÓN] START RECORDING: Canal 1 iniciado 
+[2023-03-07 21:53:06] [INFORMACIÓN] STOP RECORDING: Intento de parada de grabacion en el canal 1 
+[2023-03-07 21:53:06] [INFORMACIÓN] STOP RECORDING: Canal 1 detenido 
+[2023-03-07 21:53:25] [INFORMACIÓN] Cierre de programa iniciado 
+[2023-03-07 21:55:24] [INFORMACIÓN] Conexión a la base de datos completada con éxito 
+[2023-03-07 21:55:24] [CONFIGURAR] Obteniendo parámetros de configuración 
+[2023-03-07 21:55:24] [CONFIGURAR] Tiempo para crear nuevo paquete al grabar obtenido: 40 
+[2023-03-07 21:55:24] [CONFIGURAR] Número máximo de paquetes capturados por canal obtenido: 35 
+[2023-03-07 21:55:24] [CONFIGURAR] Interfaz de red para la reproducción obtenida: enp0s8 
+[2023-03-07 21:55:24] [CONFIGURAR] Segundos para comprobar espacio obtenido: 70 
+[2023-03-07 21:55:24] [CONFIGURAR] Tamaño máximo de capturas obtenido: 400 
+[2023-03-07 21:55:24] [CONFIGURAR] Dirección del archivo de canales obtenida: config/canales.txt 
+[2023-03-07 21:55:24] [CONFIGURAR] Puerto obtenido: 8080 
+[2023-03-07 21:55:24] [CONFIGURAR] Clave encontrada 
+[2023-03-07 21:55:24] [CONFIGURAR] Parámetros de configuración obtenidos 
+[2023-03-07 21:55:24] [CONFIGURAR] Archivo de canales importado correctamente 
+[2023-03-07 21:55:24] [INFORMACIÓN] Servidor corriendo en el puerto 8080 
+[2023-03-07 21:55:24] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:55:24] [INFORMACIÓN] DELETION MECHANISM: Hay 118MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:55:26] [INFORMACIÓN] LOGIN: Inicio de sesión correcto 
+[2023-03-07 21:55:32] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:55:33] [INFORMACIÓN] START RECORDING: Canal 1 iniciado 
+[2023-03-07 21:55:38] [INFORMACIÓN] START RECORDING: Intento de inicio grabacion en el canal 1 
+[2023-03-07 21:55:38] [ADVERTENCIA] START RECORDING: Error, el canal indicado 1 ya estaba grabando 
+[2023-03-07 21:56:34] [INFORMACIÓN] DELETION MECHANISM: Comprobando espacio... 
+[2023-03-07 21:56:34] [INFORMACIÓN] DELETION MECHANISM: Hay 118MBs ocupados, por lo que no se ha activado el mecansimo de borrado 
+[2023-03-07 21:57:06] [INFORMACIÓN] STOP RECORDING: Intento de parada de grabacion en el canal 1 
+[2023-03-07 21:57:06] [INFORMACIÓN] STOP RECORDING: Canal 1 detenido 
+[2023-03-07 21:57:06] [INFORMACIÓN] BD: Se han subido los datos de la grabación satisfactoriamente 
+[2023-03-07 21:57:17] [INFORMACIÓN] Cierre de programa iniciado 
