@@ -639,6 +639,7 @@ public class Server{
             String num = query.substring(6,pos[0]);
             String inicio = query.substring(pos[0]+8,pos[1]);
             String fin = query.substring(pos[1]+5);
+            if(fin.length()!=inicio.length()){return new int[]{-1,-1};}
 
             try {
                 int ch = Integer.parseInt(num);
