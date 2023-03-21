@@ -43,47 +43,49 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import {useNavigate} from 'react-router-dom';
 
-function Login() {
-  const [logged, setLog] = useState(false);
+function setLoginInfo(value, ttl) {
+	const now = new Date()
+  ttl = ttl * 1000;
+
+	const item = {
+		value: value,
+		expiry: now.getTime() + ttl,
+	}
+
+	localStorage.setItem('token', JSON.stringify(item))
+}
+
+export default function Login({updateApp}) {
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
-  const onLogOut = () => {
-      setLog(false);
-      localStorage.setItem("logged", false);
-      navigate('/', {replace: true});
-  }
 
   const [details, setDetails] = useState({key:""});
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (event) => {
-      event.preventDefault();
-  
-      if(details.key===""){
-          setError("Rellene la clave");
-          setOpen(true);
-      }else{
-          setLoading(true);
-          setTimeout(function(){}, 1000);
-          setLog(true);
-          localStorage.setItem("logged", true);
-          navigate('/');
-      }
-      };
-  
-    const [showKey, setShowKey] = useState(false);
-    function handleKeyVisibleChange(e) {
-      const value = e.target.checked;
-      if(value){
-        setShowKey(true);
-      }else{
-        setShowKey(false);
-      }
+    event.preventDefault();
+
+    if(details.key===""){
+        setError("Rellene la clave");
+        setOpen(true);
+    }else{
+        setLoading(true);
+        setTimeout(function(){}, 1000);
+        setLoginInfo("true",300);
+        updateApp();
     }
+  }
+  
+  const [showKey, setShowKey] = useState(false);
+  function handleKeyVisibleChange(e) {
+    const value = e.target.checked;
+    if(value){
+      setShowKey(true);
+    }else{
+      setShowKey(false);
+    }
+  }
 
   return (
     <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" style={{ minHeight: '100vh'}}>
@@ -132,5 +134,3 @@ function Login() {
     </Grid>
   );
 }
-
-export default Login;
