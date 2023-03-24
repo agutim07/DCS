@@ -46,6 +46,75 @@ public class DataBase {
         }
     }
 
+    //OBTENEMOS LA CONFIGURACIÓN DE LA BASE DE DATOS
+    public ArrayList<String> getConfig(){
+        ArrayList<String> config = new ArrayList<>();
+
+        String check = "SELECT * FROM config";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+
+            ResultSet rs  = pstmt.executeQuery();
+            if (rs.next()) {
+                config.add(Integer.toString(rs.getInt("timeForNewPack")));
+                config.add(Integer.toString(rs.getInt("maxPackets")));
+                config.add(rs.getString("interface"));
+                config.add(Integer.toString(rs.getInt("secondsToDelete")));
+                config.add(Integer.toString(rs.getInt("maxMBs")));
+                config.add(Integer.toString(rs.getInt("port")));
+                config.add(rs.getString("key"));
+            }
+
+            log.addInfo("BD: Se ha obtenido la configuración de la base de datos correctamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener la configuración de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener la configuración de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        return config;
+    }
+
+    //OBTENEMOS LOS CANALES DE LA BASE DE DATOS
+    public ArrayList<String> getChannels(){
+        ArrayList<String> canales = new ArrayList<>();
+        int id = 0;
+
+        String check = "SELECT * FROM canales";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                id++;
+                if(rs.getInt("on")==1){
+                    canales.add(Integer.toString(id));
+                    canales.add(rs.getString("filtro"));
+                }
+            }
+
+            log.addInfo("BD: Se han obtenido los canales de la base de datos correctamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener los canales de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener los canales de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        return canales;
+    }
+
     //GUARDAR DATOS: PARA GUARDAR INFORMACION DE UNA GRABACION UNA VEZ LA HEMOS DETENIDO
     public void saveData(int ch, long start, long stop){
         if(!status){

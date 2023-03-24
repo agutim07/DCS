@@ -1,7 +1,0 @@
-Filtros para capturar mediante TCPDUMP (por interfaz, puerto...). Cada línea representa un canal.
-CANALES:
-{todo el trafico}
-udp 
-tcp
--i enp0s3 dst 239.0.0.1
-prueba fallo

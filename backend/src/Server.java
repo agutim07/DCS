@@ -32,6 +32,10 @@ public class Server{
         //iniciamos los cuatro subarchivos principales para el funcionamiento de la app y los asignamos a variables: loggerSystem, dataBase, captureSystem, replaySystem
         log = new LoggerSystem();
         DB = new DataBase(log);
+        if(!DB.status){
+            System.out.println("ERROR FATAL: No hay conexión a la base de datos");
+            return;
+        }
 
         dataCaptureSystem = new CaptureSystem(log,DB);
         dataReplaySystem = new ReplaySystem(log,DB,dataCaptureSystem.netinterface);
@@ -41,7 +45,7 @@ public class Server{
         //si dentro de DCS port es 0 o key es null, probablemente no se hayan asignado: lo que querrá decir que o no hemos encontrado .config o estos valores son erróneos 
         //se pararía la ejecución del programa
         if(port==0 || key==null){
-            System.out.println("ERROR FATAL: Archivo de configuración no encontrado o erróneo");
+            System.out.println("ERROR FATAL: Opciones de configuración no encontradas en la base de datos");
             return;
         }
 
@@ -50,6 +54,7 @@ public class Server{
         server.createContext("/", new MainHandler());
         server.createContext("/info", new InfoHandler());
         server.createContext("/login", new LoginHandler());
+        server.createContext("/logout", new LogoutHandler());
         server.createContext("/canales", new CanalesHandler());
         server.createContext("/start", new StartHandler());
         server.createContext("/stop", new StopHandler());
@@ -78,7 +83,7 @@ public class Server{
 
     }
 
-    //URL -> PAGINA ÍNDICE
+    //URL -> PAGINA INDICE
     static class MainHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
@@ -141,12 +146,28 @@ public class Server{
                     response.append("Clave correcta, ha iniciado sesion <br/>");
                     logged = true;
                 }else{
-                    //inicio incorrecto, devolvemos el código 401: unauthorized
-                    code = 401;
+                    //inicio incorrecto
                     log.addWarning("LOGIN: Error, clave incorrecta");
                     response.append("Clave incorrecta <br/>");
                 }
             }
+
+            response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(), code);
+        }
+    }
+
+    //URL -> PAGINA LOGOUT
+    static class LogoutHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+            response.append("<html><body>");
+
+            logged = false;
+            response.append("ok <br/>");
 
             response.append("</body></html>");
             Server.writeResponse(httpExchange, response.toString(), code);
@@ -498,6 +519,12 @@ public class Server{
 
     //este método devuelve una cadena y un codigo HTTP al usuario que ha realizado una peticion HTTP
     public static void writeResponse(HttpExchange httpExchange, String response, int code) throws IOException {
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Headers", "*");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Credentials-Header", "*");
+
         httpExchange.sendResponseHeaders(code, response.length());
         OutputStream os = httpExchange.getResponseBody();
         os.write(response.getBytes());

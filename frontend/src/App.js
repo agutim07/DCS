@@ -1,8 +1,4 @@
-import { useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import isLogged from './login';
-import { useNavigate} from "react-router-dom";
+import {useState } from 'react';
 import Login from './login';
 import Inicio from './sections/inicio';
 
@@ -27,8 +23,7 @@ function App() {
   function updateFunc(){
     setUpdate(!update);
   }
-
-  console.log(JSON.parse(localStorage.getItem('token')).value);
+  
   if(JSON.parse(localStorage.getItem('token')).value=="false") {
     return <Login updateApp={updateFunc}/>
   }

@@ -4,11 +4,9 @@ import java.util.*;
 import java.util.ArrayList;
 
 //CLASE CAPTURE SYSTEM ->   SE ENCARGA DE TODAS LAS FUNCIONES RELACIONADAS CON LAS GRABACION
-//                          ADEMÁS DEL BORRADO AUTOMÁTICO Y LA IMPORTACIÓN DE CANALES Y PARÁMETROS
+//                          ADEMAS DEL BORRADO AUTOMATICO Y LA IMPORTACION DE CANALES Y PARAMETROS
 
 public class CaptureSystem {
-    private static String configFilePath = "config/config.properties"; //Archivo de configuración
-
     //estos nueve parámetros se importan desde el archivo de configuración 
     public static int port;
     public static String key;
@@ -16,12 +14,11 @@ public class CaptureSystem {
     private static int maxPackets;  
     public static int secondsToDelete;  
     private static long maxMBs;  
-    private static String channelFile = "";
     private static File captureFolder = new File("captures");
     public static String netinterface = "";
 
     
-    private static ArrayList<String> canales;       //filtros de los canales importados
+    private static ArrayList<Canales> canales;       //filtros de los canales importados
     private static ArrayList<Process> grabaciones;  //procesos de las grabaciones activas
     private static ArrayList<Long> grabacionStart;  //tiempo inicio de las grabaciones activas
     private static ArrayList<Task> grabacionTask;   //tarea de las grabaciones activas (solo Windows)
@@ -61,11 +58,11 @@ public class CaptureSystem {
 
         //buscamos el canal indicado, si existe obtenemos sus filtros
         for(int i=0; i<canales.size(); i++){
-            if(ch==(i+1) && canales.get(i)!="null"){
+            if(ch==(i+1) && canales.get(i)!=null){
                 existente = true;
                 if(grabaciones.get(ch-1)==null){
                     //solo obtenemos el filtro si no hay proceso => no está grabando ya ese canal
-                    filtros = canales.get(i);
+                    filtros = canales.get(i).filtro;
                 }
             }
         } 
@@ -207,7 +204,7 @@ public class CaptureSystem {
 
         //nos aseguramos que el canal a detener exista y este grabando
         for(int i=0; i<canales.size(); i++){
-            if(ch==(i+1) && canales.get(i)!="null"){
+            if(ch==(i+1) && canales.get(i)!=null){
                 existente = true;
                 //si es especial (tiene tarea) debemos detenerla
                 if(grabacionTask.get(i)!=null){
@@ -269,27 +266,22 @@ public class CaptureSystem {
 
 
     //IMPORTAMOS CANALES Y SUS FILTROS
-    public static ArrayList<String> obtainChs() throws FileNotFoundException, IOException{
-        ArrayList<String> channels = new ArrayList<String>();
+    public static ArrayList<Canales> obtainChs() throws FileNotFoundException, IOException{
+        ArrayList<Canales> channels = new ArrayList<>();
         
-        //buscamos el archivo donde hemos especificado que estan los canales
-        File file = new File(channelFile);
-        if(!file.exists()){
+        log.addConfig("Obteniendo canales...");
+        ArrayList<String> params = DB.getChannels();
+
+        if(params.size()==0){
             //sino encontramos el archivo devolvemos un error y en canales añadimos 'null'
-            log.addSevere("Archivo de canales no encontrado");
-            channels.add("null");
+            log.addSevere("No se ha encontrado ningún canal");
+            channels.add(null);
             return channels;
         }
 
-        //si encontramos el archivo lo leemos linea a linea con un buffer
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String st;
-
-        //cada linea es un filtro de un canal
-        //lo añadimos al array y su posicion en el + 1 es el numero del canal
-        br.readLine(); br.readLine();
-        while ((st = br.readLine()) != null){
-            channels.add(st);
+        //añadimos los canales
+        for(int i=0; i<params.size(); i+=2){
+            channels.add(new Canales(Integer.parseInt(params.get(i)), params.get(i+1)));
         }
 
         log.addConfig("Archivo de canales importado correctamente");
@@ -302,7 +294,7 @@ public class CaptureSystem {
         ArrayList<String> output = new ArrayList<>();
 
         //si el tamaño de los canales es 1 y el primero elemento es 'null' significa que no encontramos el archivo
-        if(canales.size()==1 && canales.get(0)=="null"){
+        if(canales.size()==1 && canales.get(0)==null){
             log.addSevere("CHANNELS: Archivo de canales no encontrado");
             output.add("Archivo de configuracion de canales no encontrado"); 
             return output;
@@ -312,7 +304,7 @@ public class CaptureSystem {
         for(int i=0; i<canales.size(); i++){
             something = true;
             //imprimos numero canal y su filtro
-            String canal = "Canal "+(i+1)+": "+canales.get(i);
+            String canal = "Canal "+canales.get(i).id+": "+canales.get(i).filtro;
             //si esta grabando lo imprimimos asi como el tiempo que lleva grabando
             if(grabaciones.get(i)!=null){
                 //tiempo que lleva grabando: tiempo actual menos tiempo de inicio de la grabacion
@@ -349,7 +341,7 @@ public class CaptureSystem {
         return result;
     }
 
-    //MECANISMO DE BORRADO AUTOMÁTICO
+    //MECANISMO DE BORRADO AUTOMATICO
     public static void deletionMechanism(){
         //conseguimos el espacio ocupado actualmente en la carpeta de capturas
         long MBs = getFolderMB(captureFolder);
@@ -402,35 +394,24 @@ public class CaptureSystem {
 
     //OBTENEMOS PARAMETROS DE CONFIGURACION
     public static void getConfiguration() throws IOException{
-        //buscamos el archivo donde hemos especificado que estan los parametros de configuracion
-        File file = new File(configFilePath);
-        if(!file.exists()){
-            //sino lo encontramos devolvemos error
-            log.addSevere("Archivo de configuración no encontrado");
-            return;
-        }
+        log.addConfig("Obteniendo parámetros de configuración...");
+        ArrayList<String> params = DB.getConfig();
+        if(params.size()!=7){return;}
+        
 
-        //vamos extrayendo parametro a parametro y logeando lo que extraemos por cada uno
-        log.addConfig("Obteniendo parámetros de configuración");
-        FileInputStream propsInput = new FileInputStream(configFilePath);
-        Properties prop = new Properties();
-        prop.load(propsInput);
-
-        timeForNewPack = Integer.valueOf(prop.getProperty("timeForNewPack"));
+        timeForNewPack = Integer.valueOf(params.get(0));
         log.addConfig("Tiempo para crear nuevo paquete al grabar obtenido: "+timeForNewPack);
-        maxPackets = Integer.valueOf(prop.getProperty("maxPackets"));
+        maxPackets = Integer.valueOf(params.get(1));
         log.addConfig("Número máximo de paquetes capturados por canal obtenido: "+maxPackets);
-        netinterface = prop.getProperty("interface");
+        netinterface = params.get(2);
         log.addConfig("Interfaz de red para la reproducción obtenida: "+netinterface);
-        secondsToDelete = Integer.valueOf(prop.getProperty("secondsToDelete"));
+        secondsToDelete = Integer.valueOf(params.get(3));
         log.addConfig("Segundos para comprobar espacio obtenido: "+secondsToDelete);
-        maxMBs = Integer.valueOf(prop.getProperty("maxMBs"));
+        maxMBs = Integer.valueOf(params.get(4));
         log.addConfig("Tamaño máximo de capturas obtenido: "+maxMBs);
-        channelFile = prop.getProperty("channelFile");
-        log.addConfig("Dirección del archivo de canales obtenida: "+channelFile);
-        port = Integer.valueOf(prop.getProperty("port"));
+        port = Integer.valueOf(params.get(5));
         log.addConfig("Puerto obtenido: "+port);
-        key = prop.getProperty("key"); 
+        key = params.get(6);
         log.addConfig("Clave encontrada");
 
         log.addConfig("Parámetros de configuración obtenidos");
@@ -470,5 +451,15 @@ public class CaptureSystem {
         processBuilder.redirectErrorStream(true);
 
         return processBuilder.start();
+    }
+
+    static class Canales{
+        int id;
+        String filtro;
+
+        Canales(int i, String f){
+            this.id = i;
+            this.filtro = f;
+        }
     }
 }
