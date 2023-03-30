@@ -1,6 +1,7 @@
 import {useState } from 'react';
 import Login from './login';
 import Inicio from './sections/inicio';
+import {keyExpiration} from './variables/global'
 
 function setLoginInfo(value, ttl) {
 	const now = new Date()
@@ -16,7 +17,7 @@ function setLoginInfo(value, ttl) {
 
 function App() {
   if(!localStorage.getItem('token')){
-    setLoginInfo("false",300)
+    setLoginInfo("false",keyExpiration)
   }
 
   const [update, setUpdate] = useState(false);

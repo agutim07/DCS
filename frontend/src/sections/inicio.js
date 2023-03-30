@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useNavigate} from "react-router-dom";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 import {
     BrowserRouter as Router,
@@ -9,15 +11,25 @@ import {
     Route,
     Link
   } from "react-router-dom";
+import Header from '../components/header';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Copperplate Gothic Light',
+  },
+});
 
 function Inicio() {
 
     return (
-        <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" style={{ minHeight: '100vh'}}>
+      <ThemeProvider theme={theme}>
+      <Box sx={{ mx: "7.5%"}}>
+        <Header />
         <Typography component="h1" variant="h5">
         Si
         </Typography>
-        </Grid>
+      </Box>
+      </ThemeProvider>
     );
     }
 
