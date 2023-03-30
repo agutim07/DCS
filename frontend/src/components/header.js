@@ -1,35 +1,96 @@
+import * as React from 'react';
+import { useRef } from 'react';
 import Grid from '@mui/material/Grid'
 import Toolbar from '@mui/material/Toolbar';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import LogoutIcon from '@mui/icons-material/Logout';
+import CloseIcon from '@mui/icons-material/Close';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const Header = () => {
+import AlertTitle from '@mui/material/AlertTitle';
+import MuiAlert from '@mui/material/Alert';
+import axios from "axios";
+
+import {backend} from '../variables/global'
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+  
+
+const Header = ({logout}) => {
+    const windowSize = useRef([window.innerWidth, window.innerHeight]);
+    var buttonProps = {borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', borderColor:'#ED7D31', color:'#000000', borderColor:'#000000'}};
+    var buttonProps2 = {mr:2, borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', borderColor:'#ED7D31', color:'#000000', borderColor:'#000000'}};
+
+    const [open, setOpen] = React.useState(false);
+    const [type, setType] = React.useState("loading");
+    const handleClickOpen = () => {setOpen(true);};
+    const handleClose = () => {setOpen(false); setType("loading");};
+
+    const endSession = async (event) => {
+        event.preventDefault();
+        handleClickOpen();
+
+        try {
+            await axios.get(`${backend}/logout`);
+            handleClose();
+            localStorage.removeItem('token');
+            logout();
+        } catch(e) {
+            setType("error");
+        } 
+    }
 
     return (
         <div>
-            <Toolbar sx={{borderBottom: `1px solid black`}}>
+            <Toolbar sx={{mb:2, borderBottom: `1px solid black`}}>
                 <Grid my={1.5} container alignItems="center">
                     <Grid item xs={2} align="left">
                         <IconButton disableElevation disableRipple size="small" sx={{ ml: 1, "&.MuiButtonBase-root:hover": {bgcolor: "transparent"}}}>
-                            <Box component="img" sx={{ height: 120, width: 120*1.42}}
+                            <Box component="img" sx={{ height: windowSize.current[1]*0.1, width: windowSize.current[1]*0.142}}
                             alt="DCS" src="/images/DCS_logo.jpg" />
                         </IconButton>
                     </Grid>
-                    <Grid item xs={8}>
-                        <Grid container direction="row" alignItems="center" textAlign="center">
-                        <Stack spacing={2} direction="row" alignItems="center" textAlign="center">
-                            <Button variant="outlined">Inicio</Button>
-                            <Button variant="outlined">Grabaciones</Button>
-                            <Button variant="outlined">Reproducciones</Button>
-                            <Button variant="outlined">Datos</Button>
-                            <Button variant="outlined">Parámetros</Button>
-                        </Stack>
-                        </Grid>
+                    <Grid item xs={8} align="center">
+                            <Button sx={buttonProps2} variant="outlined">Inicio</Button>
+                            <Button sx={buttonProps2} variant="outlined">Grabaciones</Button>
+                            <Button sx={buttonProps2} variant="outlined">Reproducciones</Button>
+                            <Button sx={buttonProps2} variant="outlined">Datos</Button>
+                            <Button sx={buttonProps} variant="outlined">Parámetros</Button>
+                    </Grid>
+                    <Grid item xs={2} align="right">
+                        <IconButton onClick={endSession}>
+                            <LogoutIcon sx={{color:'#000000'}}/>
+                        </IconButton>
                     </Grid>
                 </Grid>
+                <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>Cerrando sesión...</DialogTitle>
+                    {(type=="loading") ? (
+                    <div> <DialogContent align="center">
+                        <CircularProgress sx={{color:'#ED7D31'}}/>
+                    </DialogContent> </div>
+                    ) : (
+                    <div><DialogContent>
+                        <Alert severity="error">
+                        <AlertTitle>Error</AlertTitle>
+                        <strong>No se ha podido conectar con el backend</strong>
+                        </Alert>
+                    </DialogContent>
+                    <DialogActions>
+                        <IconButton onClick={handleClose}>
+                            <CloseIcon sx={{color:'red'}}/>
+                        </IconButton>
+                    </DialogActions> </div>
+                    )}
+                </Dialog>
             </Toolbar>
         </div>
     );

@@ -306,6 +306,11 @@ public class CaptureSystem {
             //imprimos numero canal y su filtro
             String canal = "Canal "+canales.get(i).id+": "+canales.get(i).filtro;
             //si esta grabando lo imprimimos asi como el tiempo que lleva grabando
+
+            if(grabaciones.get(i)!=null && processFinished(grabaciones.get(i))!=-1){
+                stopRecording(i+1);
+            }
+            
             if(grabaciones.get(i)!=null){
                 //tiempo que lleva grabando: tiempo actual menos tiempo de inicio de la grabacion
                 long timepograbacion = (System.currentTimeMillis()/1000l) - grabacionStart.get(i);

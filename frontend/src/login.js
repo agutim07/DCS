@@ -55,12 +55,12 @@ const darkTheme = createTheme({
   },
 });
 
-function setLoginInfo(value, ttl) {
-	const now = new Date()
-  ttl = ttl * 1000;
+function setLoginInfo() {
+	const now = new Date();
+  var ttl = keyExpiration * 1000;
 
 	const item = {
-		value: value,
+		value: "true",
 		expiry: now.getTime() + ttl,
 	}
 
@@ -87,7 +87,7 @@ export default function Login({updateApp}) {
         try {
           const response = await axios.get(`${backend}/login?key=${details.key}`);
           if(response.data==okeyMsg){
-            setLoginInfo("true",keyExpiration);
+            setLoginInfo();
             updateApp();
           }else{
             setError("Clave incorrecta");
@@ -99,8 +99,6 @@ export default function Login({updateApp}) {
           setOpen(true);
         } 
         setLoading(false);
-
-        
     }
   }
   

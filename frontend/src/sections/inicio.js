@@ -16,15 +16,16 @@ import Header from '../components/header';
 const theme = createTheme({
   typography: {
     fontFamily: 'Copperplate Gothic Light',
+    fontSize: 11
   },
 });
 
-function Inicio() {
+function Inicio({updateApp}) {
 
     return (
       <ThemeProvider theme={theme}>
       <Box sx={{ mx: "7.5%"}}>
-        <Header />
+        <Header logout={updateApp}/>
         <Typography component="h1" variant="h5">
         Si
         </Typography>

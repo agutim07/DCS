@@ -1,14 +1,13 @@
 import {useState } from 'react';
 import Login from './login';
 import Inicio from './sections/inicio';
-import {keyExpiration} from './variables/global'
 
-function setLoginInfo(value, ttl) {
+function setLoginInfo() {
 	const now = new Date()
-  ttl = ttl * 1000;
+  var ttl = 99999999999 * 1000;
 
 	const item = {
-		value: value,
+		value: "false",
 		expiry: now.getTime() + ttl,
 	}
 
@@ -17,7 +16,13 @@ function setLoginInfo(value, ttl) {
 
 function App() {
   if(!localStorage.getItem('token')){
-    setLoginInfo("false",keyExpiration)
+    setLoginInfo();
+  }else{
+    const now = new Date();
+    if (now.getTime() > JSON.parse(localStorage.getItem('token')).expiry) {
+      localStorage.removeItem('token');
+      setLoginInfo();
+	  }
   }
 
   const [update, setUpdate] = useState(false);
@@ -30,7 +35,7 @@ function App() {
   }
   
   return (
-    <Inicio />
+    <Inicio updateApp={updateFunc}/>
   );
 }
 
