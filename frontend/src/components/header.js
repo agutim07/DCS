@@ -16,6 +16,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertTitle from '@mui/material/AlertTitle';
 import MuiAlert from '@mui/material/Alert';
 import axios from "axios";
+import { useLocation , useNavigate } from 'react-router-dom'
 
 import {backend} from '../variables/global'
 
@@ -26,13 +27,21 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 const Header = ({logout}) => {
     const windowSize = useRef([window.innerWidth, window.innerHeight]);
-    var buttonProps = {borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', borderColor:'#ED7D31', color:'#000000', borderColor:'#000000'}};
-    var buttonProps2 = {mr:2, borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', borderColor:'#ED7D31', color:'#000000', borderColor:'#000000'}};
+    var buttonProps = {borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000'}};
+    var buttonProps2 = {mr:2, borderColor:'#ED7D31', color:'#ED7D31', '&:hover': {backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000'}};
+    var selected = {backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000', '&:hover': {backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000'}};
+    var selected2 = {mr:2, backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000', '&:hover': {backgroundColor: '#E9A272', color:'#000000', borderColor:'#000000'}};
 
     const [open, setOpen] = React.useState(false);
     const [type, setType] = React.useState("loading");
     const handleClickOpen = () => {setOpen(true);};
     const handleClose = () => {setOpen(false); setType("loading");};
+    const location = useLocation();
+
+    const navigate = useNavigate();
+    const changePage = next => {
+        navigate(next);
+    }
 
     const endSession = async (event) => {
         event.preventDefault();
@@ -53,17 +62,17 @@ const Header = ({logout}) => {
             <Toolbar sx={{mb:2, borderBottom: `1px solid black`}}>
                 <Grid my={1.5} container alignItems="center">
                     <Grid item xs={2} align="left">
-                        <IconButton disableElevation disableRipple size="small" sx={{ ml: 1, "&.MuiButtonBase-root:hover": {bgcolor: "transparent"}}}>
+                        <IconButton disableElevation disableRipple disabled size="small" sx={{ ml: 1, "&.MuiButtonBase-root:hover": {bgcolor: "transparent"}}}>
                             <Box component="img" sx={{ height: windowSize.current[1]*0.1, width: windowSize.current[1]*0.142}}
                             alt="DCS" src="/images/DCS_logo.jpg" />
                         </IconButton>
                     </Grid>
                     <Grid item xs={8} align="center">
-                            <Button sx={buttonProps2} variant="outlined">Inicio</Button>
-                            <Button sx={buttonProps2} variant="outlined">Grabaciones</Button>
-                            <Button sx={buttonProps2} variant="outlined">Reproducciones</Button>
-                            <Button sx={buttonProps2} variant="outlined">Datos</Button>
-                            <Button sx={buttonProps} variant="outlined">Parámetros</Button>
+                            <Button sx={location.pathname=='/inicio' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/inicio')}>Inicio</Button>
+                            <Button sx={location.pathname=='/grabaciones' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/grabaciones')}>Grabaciones</Button>
+                            <Button sx={location.pathname=='/reproducciones' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/reproducciones')}>Reproducciones</Button>
+                            <Button sx={location.pathname=='/datos' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/datos')}>Datos</Button>
+                            <Button sx={location.pathname=='/parametros' ? selected : buttonProps} variant="outlined" onClick={() => changePage('/parametros')}>Parámetros</Button>
                     </Grid>
                     <Grid item xs={2} align="right">
                         <IconButton onClick={endSession}>

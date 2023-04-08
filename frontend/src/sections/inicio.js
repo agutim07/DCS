@@ -9,9 +9,12 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
-    Link
+    Navigate
   } from "react-router-dom";
+
 import Header from '../components/header';
+import Home from './pages/home';
+import Rep from './pages/rep';
 
 const theme = createTheme({
   typography: {
@@ -21,14 +24,16 @@ const theme = createTheme({
 });
 
 function Inicio({updateApp}) {
-
     return (
       <ThemeProvider theme={theme}>
       <Box sx={{ mx: "7.5%"}}>
         <Header logout={updateApp}/>
-        <Typography component="h1" variant="h5">
-        Si
-        </Typography>
+        <Routes>
+          <Route path='/' element={<Navigate to='/inicio' />} />
+          <Route path="/inicio" exact element={<Home/>} />
+          <Route path="/reproducciones" element={<Rep/>} />
+          <Route path="/*" element={<p>No hay nada aquí: 404!</p>} />
+        </Routes>
       </Box>
       </ThemeProvider>
     );

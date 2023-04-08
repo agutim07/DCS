@@ -1,6 +1,8 @@
 import {useState } from 'react';
 import Login from './login';
 import Inicio from './sections/inicio';
+import {backend} from './variables/global'
+import axios from "axios";
 
 function setLoginInfo() {
 	const now = new Date()
@@ -21,6 +23,7 @@ function App() {
     const now = new Date();
     if (now.getTime() > JSON.parse(localStorage.getItem('token')).expiry) {
       localStorage.removeItem('token');
+      axios.get(`${backend}/logout`);
       setLoginInfo();
 	  }
   }

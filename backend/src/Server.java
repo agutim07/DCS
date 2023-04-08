@@ -63,6 +63,7 @@ public class Server{
         server.createContext("/jumpreplay", new JumpReplayHandler());
         server.createContext("/speedreplay", new SpeedReplayHandler());
         server.createContext("/reproducciones", new StatusHandler());
+        server.createContext("/checkinstall", new CheckHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -512,6 +513,32 @@ public class Server{
             }
 
             response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    //URL -> PAGINA CHECK: CHEQUEAR INSTALACIONES
+    static class CheckHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            String parameters = httpExchange.getRequestURI().getQuery();
+            int chequeo = Integer.parseInt(parameters);
+
+            if(chequeo==1){
+                log.addInfo("Comprobando instalaciones para reproduccion...");
+                if(!so.contains("linux")){
+                    response.append(0); //0 = el SO no es linux
+                }else{
+                    response.append(10);
+                }
+            }else{
+                response.append("-");
+            }
+
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }
