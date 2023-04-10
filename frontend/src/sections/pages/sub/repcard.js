@@ -50,10 +50,39 @@ const CustomSlider = styled(Slider)({
     '& .MuiSlider-thumb': {
         width: 13,
         height: 13,
-    }
+        color: 'black',
+    },
+    "& .MuiSlider-track": {
+        backgroundColor: "#ED7D31",
+    },
+    '& .MuiSlider-rail': {
+        color: 'black',
+    },
 });
 
+const speedMarks = [
+    {
+      value: 0.1,
+      label: 'x0.1',
+    },
+    {
+      value: 1,
+      label: 'x1',
+    },
+    {
+      value: 5,
+      label: 'x5',
+    },
+    {
+      value: 10,
+      label: 'x10',
+    },
+  ];
+
 const RepCard = ({r}) => {
+    const [time, setTime] = React.useState(r.position);
+    const [speed, setSpeed] = React.useState(r.speed);
+    
     function epochToDate(epoch){
         var d = new Date(0);
         d.setUTCSeconds(epoch);
@@ -64,7 +93,9 @@ const RepCard = ({r}) => {
         return out;
     }
 
-    function getMarks(end,actual){
+    function getMarks(){
+        var end = r.end - r.start;
+
         var endseconds = (end%60);
         if(endseconds<10){endseconds = '0'+endseconds};
 
@@ -74,7 +105,7 @@ const RepCard = ({r}) => {
             label: '00:00',
             },
             {
-            value: 100,
+            value: end,
             label: Math.floor(end/60)+':'+endseconds,
             },
         ];
@@ -88,13 +119,17 @@ const RepCard = ({r}) => {
         return Math.floor(current/60)+':'+seconds;
     }
 
+    function valuetextSpeed(value) {
+        return`x${value}`
+    }
+
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {setOpen(true);};
     const handleClose = () => {setOpen(false);};
 
     const [openEdit, setOpenEdit] = React.useState(false);
     const handleClickOpenEdit = () => {setOpenEdit(true);};
-    const handleCloseEdit = () => {setOpenEdit(false);};
+    const handleCloseEdit = () => {setOpenEdit(false); setTime(r.position); setSpeed(r.speed);};
 
     return(
         <div>
@@ -119,10 +154,11 @@ const RepCard = ({r}) => {
             <Box sx={{ width: 300 }}>
                 <CustomSlider
                     disabled
-                    defaultValue={(r.position/(r.end-r.start))*100}
+                    defaultValue={r.position}
                     valueLabelFormat={valuetext(r.position)}
-                    step={100}
                     valueLabelDisplay="on"
+                    min={0}
+                    max={r.end-r.start}
                     marks={getMarks(r.end-r.start)}
                 />
             </Box>
@@ -161,10 +197,55 @@ const RepCard = ({r}) => {
         </Dialog>
 
         <Box sx={{position: "absolute", bottom: 20, right: 20}} >
-            <Dialog fullWidth="300px" sx={{width:"200"}} open={openEdit} onClose={handleCloseEdit}>
+            <Dialog fullWidth="330px" sx={{width:"250"}} open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle id="form-dialog-title">{"Modificar reproducción "+r.id}</DialogTitle>
                 <DialogContent>
-                    
+                    <Grid container direction="column" spacing={0.5} sx={{my:3}}>
+                        <Grid item sx={{mb:3}}>
+                            <Grid container alignItems="center">
+                                <Grid item xs={3}>
+                                    <Typography component="h1" variant="h6">
+                                        Tiempo
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={9}>
+                                <CustomSlider
+                                    defaultValue={r.position}
+                                    valueLabelFormat={valuetext(time)}
+                                    step={1}
+                                    valueLabelDisplay="on"
+                                    marks={getMarks()}
+                                    min={0}
+                                    max={r.end-r.start}
+                                    onChange={(e, newValue) => setTime(newValue)}
+                                />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid item>
+                            <Grid container alignItems="center">
+                                <Grid item xs={3}>
+                                    <Typography component="h1" variant="h6">
+                                        Velocidad
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={9}>
+                                <Slider
+                                    track={false}
+                                    aria-labelledby="track-false-slider"
+                                    valueLabelFormat={valuetextSpeed(speed)}
+                                    defaultValue={r.speed}
+                                    step={0.1}
+                                    valueLabelDisplay="on"
+                                    marks={speedMarks}
+                                    min={0.1}
+                                    max={10}
+                                    onChange={(e, newValue) => setSpeed(newValue)}
+                                />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
                 </DialogContent>
                 <DialogActions>
                         <Button onClick={handleCloseEdit} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>

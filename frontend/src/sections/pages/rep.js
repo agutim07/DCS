@@ -34,8 +34,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export default function Rep(){
-    const rep = {id:1, canal:3, start:1680972630, end:1680972900, position:120};
-    const rep2 = {id:2, canal:5, start:1680972000, end:1680972300, position:200};
+    const rep = {id:1, canal:3, start:1680972630, end:1680972900, position:120, speed:1};
+    const rep2 = {id:2, canal:5, start:1680972000, end:1680972300, position:200, speed:1};
     const canal = {id:1, syntax:"udp"}; const canal2 = {id:2, syntax:"tcp -i enp0s8"};
 
     const [reps, setReps] = useState([]);
@@ -82,7 +82,7 @@ export default function Rep(){
             <IconButton>
                 <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
             </IconButton>
-            <Box sx={{ width: '75%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
+            <Box sx={{ width: '90%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
                 {(loading) ? (
                     <CircularProgress sx={{color:'#ED7D31'}}/>
                 ) : (
