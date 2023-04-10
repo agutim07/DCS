@@ -333,6 +333,17 @@ public class CaptureSystem {
         
     }
 
+    public ArrayList<String> getChannelsRaw(){
+        ArrayList<String> out = new ArrayList<>();
+
+        for(int i=0; i<canales.size(); i++){
+            out.add(String.valueOf(canales.get(i).id));
+            out.add(canales.get(i).filtro);
+        }
+
+        return out;
+    }
+
     //DEVUELVE EL ESTADO DE UN PROCESO
     private static int processFinished(Process process){
         //-1: el proceso no ha terminado aún

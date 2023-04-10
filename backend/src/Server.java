@@ -56,6 +56,7 @@ public class Server{
         server.createContext("/login", new LoginHandler());
         server.createContext("/logout", new LogoutHandler());
         server.createContext("/canales", new CanalesHandler());
+        server.createContext("/canalesRaw", new CanalesRawHandler());
         server.createContext("/start", new StartHandler());
         server.createContext("/stop", new StopHandler());
         server.createContext("/replay", new ReplayHandler());
@@ -200,6 +201,32 @@ public class Server{
             }
 
             response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class CanalesRawHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                //este array incluirá en cada posicion informacion sobre un canal concreto
+                ArrayList<String> canales = dataCaptureSystem.getChannelsRaw();
+                if(canales.size()==0){
+                    response.append("error");
+                }else{
+                    response.append(canales);
+                }
+            }
+
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }
@@ -528,12 +555,18 @@ public class Server{
             String parameters = httpExchange.getRequestURI().getQuery();
             int chequeo = Integer.parseInt(parameters);
 
+            //1 = chequeo para la reproduccion
             if(chequeo==1){
                 log.addInfo("Comprobando instalaciones para reproduccion...");
                 if(!so.contains("linux")){
-                    response.append(0); //0 = el SO no es linux
+                    response.append("La funcion de reproduccion solo esta disponible en S0's Linux"); //-1 = el SO no es linux
                 }else{
-                    response.append(10);
+                    int state = dataReplaySystem.checkInstallations();
+                    if(state==0){response.append("Faltan las instalaciones de tcpreplay y wireshark para reproducir");}
+                    if(state==1){response.append("Falta las instalacion de tcpreplay para reproducir");}
+                    if(state==2){response.append("Falta las instalacion de wireshark para reproducir");}
+                    if(state==3){response.append("OK");}
+                    
                 }
             }else{
                 response.append("-");

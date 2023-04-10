@@ -619,6 +619,24 @@ public class ReplaySystem {
         return f.substring(division+1);
     }
 
+    //chequeamos que tcpreplay y wireshark esten instaladas
+    public static int checkInstallations() throws IOException {
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpreplay").getInputStream()).useDelimiter("\\A");
+        String output1 = s1.hasNext() ? s1.next() : "";
+        String[] lines1 = output1.split("\r\n|\r|\n");
+
+        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list wireshark").getInputStream()).useDelimiter("\\A");
+        String output2 = s2.hasNext() ? s2.next() : "";
+        String[] lines2 = output2.split("\r\n|\r|\n");
+
+
+        if(lines1.length<2 && lines2.length<2){return 0;}   //ninguna instalada
+        if(lines1.length<2){return 1;}  //tcpreplay no instalado
+        if(lines2.length<2){return 2;}  //wireshark no instalado
+        return 3;   //ambas instaladas
+    }
+
+
     //CLASE REPRODUCCION
     class reproduccion{
         int id;         //id
