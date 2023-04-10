@@ -80,6 +80,17 @@ const speedMarks = [
   ];
 
 const RepCard = ({r}) => {
+    const [timePass, setTimePass] = useState(Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+          setTimePass(new Date());
+          r.position = r.position + 1;
+        }, 1000);
+    
+        return () => clearInterval(interval);
+      }, []);
+
     const [time, setTime] = React.useState(r.position);
     const [speed, setSpeed] = React.useState(r.speed);
     
@@ -128,8 +139,9 @@ const RepCard = ({r}) => {
     const handleClose = () => {setOpen(false);};
 
     const [openEdit, setOpenEdit] = React.useState(false);
-    const handleClickOpenEdit = () => {setOpenEdit(true);};
-    const handleCloseEdit = () => {setOpenEdit(false); setTime(r.position); setSpeed(r.speed);};
+    const handleClickOpenEdit = () => {setOpenEdit(true); setTime(r.position); setSpeed(r.speed);};
+    const handleCloseEdit = () => {setOpenEdit(false); setChangeTime(false);};
+    const [changeTime, setChangeTime] = React.useState(false);
 
     return(
         <div>
@@ -154,7 +166,7 @@ const RepCard = ({r}) => {
             <Box sx={{ width: 300 }}>
                 <CustomSlider
                     disabled
-                    defaultValue={r.position}
+                    value={r.position}
                     valueLabelFormat={valuetext(r.position)}
                     valueLabelDisplay="on"
                     min={0}
@@ -210,14 +222,14 @@ const RepCard = ({r}) => {
                                 </Grid>
                                 <Grid item xs={9}>
                                 <CustomSlider
-                                    defaultValue={r.position}
-                                    valueLabelFormat={valuetext(time)}
+                                    value = { changeTime ? time : r.position }
+                                    valueLabelFormat={ changeTime ? valuetext(time) : valuetext(r.position) }
                                     step={1}
                                     valueLabelDisplay="on"
                                     marks={getMarks()}
                                     min={0}
                                     max={r.end-r.start}
-                                    onChange={(e, newValue) => setTime(newValue)}
+                                    onChange={(e, newValue) => {setTime(newValue); setChangeTime(true)}}
                                 />
                                 </Grid>
                             </Grid>

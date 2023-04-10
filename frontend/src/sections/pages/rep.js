@@ -29,6 +29,9 @@ import DialogActions from '@mui/material/DialogActions';
 
 import RepCard from './sub/repcard'
 
+import axios from "axios";
+import {backend} from '../../variables/global'
+
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -36,31 +39,64 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 export default function Rep(){
     const rep = {id:1, canal:3, start:1680972630, end:1680972900, position:120, speed:1};
     const rep2 = {id:2, canal:5, start:1680972000, end:1680972300, position:200, speed:1};
-    const canal = {id:1, syntax:"udp"}; const canal2 = {id:2, syntax:"tcp -i enp0s8"};
 
     const [reps, setReps] = useState([]);
     const [canales, setCanales] = useState([]);
 
     useEffect(() => {
-        const temp = []; const temp2 = [];
-        temp.push(rep); temp2.push(canal);
-        temp.push(rep2); temp2.push(canal2);
-        setReps(temp); setCanales(temp2);
+        const temp = [];
+        temp.push(rep);
+        temp.push(rep2);
+        setReps(temp);
+
+        async function checkInstallations() {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${backend}/checkinstall?1`);
+                if(response.data=="OK"){
+
+                }else{
+                    setError(response.data);
+                }
+            } catch(e) {
+                setError("No se ha podido conectar con el backend");
+                console.log(e);
+            } 
+        }
+
+        async function checkChannels() {
+            try {
+                const response = await axios.get(`${backend}/canalesRaw`);
+                if(response.data=="error"){
+                    setError("No hay canales existentes en la base de datos");
+                }else{
+                    var channels = response.data.replace("[", "");
+                    channels = channels.replace("]", "");
+                    const arrayChannels = channels.split(", ");
+                    const arrayChannels1 = [];
+                    
+                    let i=0;
+                    while(i<arrayChannels.length) {
+                        let temp = {id:parseInt(arrayChannels[i]), syntax:arrayChannels[i+1]};
+                        i = i+2;
+                        arrayChannels1.push(temp);
+                    }
+
+                    setCanales(arrayChannels1);
+                }
+            } catch(e) {
+                setError("No se ha podido conectar con el backend");
+                console.log(e);
+            } 
+            setLoading(false);
+        }
+
+        checkInstallations();
+        checkChannels();
+
     }, []);
 
-    // const installations = 0;
-
-    // useEffect(async () => {
-    //     try {
-    //         await axios.get(`${backend}/logout`);
-    //         handleClose();
-    //         localStorage.removeItem('token');
-    //         logout();
-    //     } catch(e) {
-    //         setType("error");
-    //     } 
-    // }, []);
-
+    
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState("false");
 
