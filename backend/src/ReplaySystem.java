@@ -521,6 +521,37 @@ public class ReplaySystem {
         return estados;
     }
 
+    public ArrayList<Double> getStatusRaw(){
+        checkProcess();
+        ArrayList<Double> estados = new ArrayList<>();
+        boolean exists = false;
+
+        //recorremos reproduccion a reproduccion imprimiendo su estado
+        for(int i=0; i<reproducciones.size(); i++){
+            if(reproducciones.get(i).on){
+                exists = true;
+                //imprimos reproduccion y el canal que esta reinyectando
+                estados.add((double) (reproducciones.get(i).id+1));
+                estados.add((double) reproducciones.get(i).canal);
+                //imprimimos inicio y fin de la rep en formato fecha normal
+                estados.add((double) reproducciones.get(i).iTime);
+                estados.add((double) reproducciones.get(i).iTime+reproducciones.get(i).length);
+
+                int secondsPassed = (int) (((System.currentTimeMillis()/1000l) - reproducciones.get(i).start)*reproducciones.get(i).speed) + reproducciones.get(i).jump;
+                estados.add((double) secondsPassed);
+                //imprimimos cuanto lleva la reproduccion respecto al total y su velocidad
+                estados.add(reproducciones.get(i).speed);
+            }
+        }
+
+        if(!exists){
+            //sino hay ninguna rep lo imprimimos 
+            log.addWarning("REPRODUCCIONES: No hay ninguna reproducción activa");
+        }
+
+        return estados;
+    }
+
     //DETIENE UNA REPRODUCCION
     public static String stopReplay(int num) {
         checkProcess();

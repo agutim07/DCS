@@ -55,12 +55,14 @@ public class CaptureSystem {
     public static String startRecording(int ch) {
         String filtros = "";  
         boolean existente = false;
+        int pos = -1;
 
         //buscamos el canal indicado, si existe obtenemos sus filtros
         for(int i=0; i<canales.size(); i++){
-            if(ch==(i+1) && canales.get(i)!=null){
+            if(canales.get(i).id==ch){
                 existente = true;
-                if(grabaciones.get(ch-1)==null){
+                pos = i;
+                if(grabaciones.get(i)==null){
                     //solo obtenemos el filtro si no hay proceso => no está grabando ya ese canal
                     filtros = canales.get(i).filtro;
                 }
@@ -76,7 +78,7 @@ public class CaptureSystem {
 
         //si estamos en Windows debemos iniciar una grabacion especial
         if (System.getProperty("os.name").toLowerCase().contains("window")) {
-            return startRecordingWindows(ch, filtros);
+            return startRecordingWindows(ch, filtros,pos);
         }
 
         String cmd = "tcpdump "+filtros+" -w captures/cap_canal"+ch+"_%s -W "+maxPackets+" -G "+timeForNewPack+" -Z root";
@@ -92,8 +94,8 @@ public class CaptureSystem {
                 return("Error al iniciar: revise la syntax del canal y asegurese de que la ejecucion es con permisos de administrador");
             }else{
                 //asignamos a la grabacion el tiempo de inicio (el actual), y su respectivo proceso
-                grabacionStart.set((ch-1),System.currentTimeMillis()/1000l);
-                grabaciones.set((ch-1),process);
+                grabacionStart.set((pos),System.currentTimeMillis()/1000l);
+                grabaciones.set((pos),process);
                 log.addInfo("START RECORDING: Canal "+ch+" iniciado");
                 return("Grabacion iniciada");  
             }
@@ -106,7 +108,7 @@ public class CaptureSystem {
     }
 
     //INICIO DE GRABACIÓN ESPECIAL (EN WINDOWS)
-    public static String startRecordingWindows(int ch, String filtros) {
+    public static String startRecordingWindows(int ch, String filtros, int pos) {
         //este comando solo crea una pcap, ya que en Windows no se pueden crear nuevas automáticamente
         String cmd = "tcpdump "+filtros+" -w captures/cap_canal"+ch+"_"+Instant.now().getEpochSecond()+".pcap -Z root";
 
@@ -121,12 +123,12 @@ public class CaptureSystem {
                 return("Error al iniciar: revise la syntax del canal y asegurese de que la ejecucion es con permisos de administrador");
             }else{
                 //asignamos a la grabacion el tiempo de inicio (el actual), y su respectivo proceso
-                grabacionStart.set((ch-1),System.currentTimeMillis()/1000l);
-                grabaciones.set((ch-1),process);
+                grabacionStart.set((pos),System.currentTimeMillis()/1000l);
+                grabaciones.set((pos),process);
                 log.addInfo("START RECORDING: Canal "+ch+" iniciado");
                 //creamos una tarea que se encargara de crear sucesivas pcaps en Windows
-                grabacionTask.set((ch-1), new Task(filtros, timeForNewPack, ch-1));
-                grabacionTask.get(ch-1).start();
+                grabacionTask.set((pos), new Task(filtros, timeForNewPack, pos));
+                grabacionTask.get(pos).start();
                 return("Grabacion iniciada");  
             }
 
@@ -201,11 +203,13 @@ public class CaptureSystem {
     public static String stopRecording(int ch) {
         boolean correct = false;
         boolean existente = false;
+        int pos = -1;
 
         //nos aseguramos que el canal a detener exista y este grabando
         for(int i=0; i<canales.size(); i++){
-            if(ch==(i+1) && canales.get(i)!=null){
+            if(canales.get(i).id==ch){
                 existente = true;
+                pos = i;
                 //si es especial (tiene tarea) debemos detenerla
                 if(grabacionTask.get(i)!=null){
                     if(processFinished(grabaciones.get(i))!=-1){
@@ -237,23 +241,23 @@ public class CaptureSystem {
 
         try {
             //detenemos la grabacion y esperamos durante 7 loops de 0.2 segundos como maximo a que se haya detenido 
-            grabaciones.get(ch-1).destroy();
+            grabaciones.get(pos).destroy();
             int tries = 0;
-            while(processFinished(grabaciones.get(ch-1))==-1 && tries<7){
+            while(processFinished(grabaciones.get(pos))==-1 && tries<7){
                 Thread.sleep(200);
                 tries++;
             }
             
             //si no se ha detenido devolvemos error
-            if(processFinished(grabaciones.get(ch-1))==-1){
+            if(processFinished(grabaciones.get(pos))==-1){
                 log.addSevere("STOP RECORDING: Error al detener el canal "+ch);
                 return("Error al detener la grabacion");
             }else{
                 //si se ha detenido convertimos el proceso a null y guardamos los datos grabados -> desde el inicio
                 //hasta el tiempo actual
-                grabaciones.set((ch-1),null);
+                grabaciones.set((pos),null);
                 log.addInfo("STOP RECORDING: Canal "+ch+" detenido");
-                DB.saveData(ch,grabacionStart.get(ch-1)-4,System.currentTimeMillis()/1000l);
+                DB.saveData(ch,grabacionStart.get(pos)-4,System.currentTimeMillis()/1000l);
                 return("Grabacion detenida");  
             }
 
@@ -342,6 +346,16 @@ public class CaptureSystem {
         }
 
         return out;
+    }
+
+    public boolean checkChannel(int ch){
+        for(int i=0; i<canales.size(); i++){
+            if(canales.get(i).id==ch){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //DEVUELVE EL ESTADO DE UN PROCESO

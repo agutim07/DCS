@@ -64,6 +64,7 @@ public class Server{
         server.createContext("/jumpreplay", new JumpReplayHandler());
         server.createContext("/speedreplay", new SpeedReplayHandler());
         server.createContext("/reproducciones", new StatusHandler());
+        server.createContext("/reproduccionesRaw", new StatusRawHandler());
         server.createContext("/checkinstall", new CheckHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
@@ -333,8 +334,7 @@ public class Server{
                     long inicio = Long.parseLong(parameters.substring(pos[0]+8,pos[1]));  
                     long fin = Long.parseLong(parameters.substring(pos[1]+5));  
 
-                    if(ch<1 || ch>dataCaptureSystem.getChannels().size()){
-                        //si el canal indicado no esta entre 1 y el tamaño del array de canales es que no es un canal existente, devolvemos 400: bad request
+                    if(!dataCaptureSystem.checkChannel(ch)){
                         code = 400;
                         log.addWarning("START REPLAY: Error, el canal indicado "+ch+" no existe");
                         response.append("El canal indicado "+ch+" no existe<br/>");
@@ -540,6 +540,32 @@ public class Server{
             }
 
             response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class StatusRawHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+             //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                //este array incluirá en cada posicion informacion sobre una reproduccion concreta
+                ArrayList<Double> reps = dataReplaySystem.getStatusRaw();
+                if(reps.size()==0){
+                    response.append("empty");
+                }else{
+                    response.append(reps);
+                }
+            }
+            
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }
