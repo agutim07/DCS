@@ -23,6 +23,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
+import axios from "axios";
+import {backend} from '../../../variables/global'
+
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -79,13 +82,15 @@ const speedMarks = [
     },
   ];
 
-const RepCard = ({r}) => {
+const RepCard = ({r, update, returnMessage}) => {
     const [timePass, setTimePass] = useState(Date.now());
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
           setTimePass(new Date());
-          r.position = r.position + 1;
+          r.position = r.position + r.speed;
+          if(r.position>=(r.end-r.start)){update();}
         }, 1000);
     
         return () => clearInterval(interval);
@@ -100,7 +105,7 @@ const RepCard = ({r}) => {
         var seconds = d.getSeconds();
         if(seconds<10){seconds="0"+seconds;}
 
-        var out = d.getDay()+"/"+d.getMonth()+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+seconds;
+        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+seconds;
         return out;
     }
 
@@ -124,6 +129,8 @@ const RepCard = ({r}) => {
     }
 
     function valuetext(current) {
+        current = Math.round(current);
+
         var seconds = (current%60);
         if(seconds<10){seconds = '0'+seconds};
 
@@ -137,6 +144,27 @@ const RepCard = ({r}) => {
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {setOpen(true);};
     const handleClose = () => {setOpen(false);};
+
+    const okeyMsg = "<html><body>Reproduccion detenida<br/></body></html>";
+    const handleDelete = async () => {
+        setLoading(true);
+        let state = ""; let msg = "";
+        try {
+            const response = await axios.get(`${backend}/stopreplay?reproduccion=${r.id}`);
+            if(response.data==okeyMsg){
+                update();
+                state="success"; msg="Reproducción "+r.id+" eliminada correctamente";
+            }else{
+                state="error"; msg="Error al eliminar la reproducción "+r.id;
+            }
+        } catch(e) {
+            //setError("No se ha podido conectar con el backend");
+            console.log(e);
+        } 
+        setOpen(false);
+        setLoading(false);
+        returnMessage(msg,state);
+    };
 
     const [openEdit, setOpenEdit] = React.useState(false);
     const handleClickOpenEdit = () => {setOpenEdit(true); setTime(r.position); setSpeed(r.speed);};
@@ -152,6 +180,9 @@ const RepCard = ({r}) => {
             <Grid item xs={1} align="left">
                 <SmallChip label={"Canal " + r.canal} variant="outlined" />
             </Grid>
+            <Grid item xs={0.5} align="center">
+                <SmallChip label={"x" + r.speed} variant="outlined" />
+            </Grid>
             <Grid item xs={3} align="center">
                 <Grid container direction="column" spacing={0.5}>
                     <Grid item>
@@ -163,7 +194,7 @@ const RepCard = ({r}) => {
                 </Grid>
             </Grid>
             <Grid item xs={4.5} align="center">
-            <Box sx={{ width: 300 }}>
+            <Box sx={{ width: '100%' }}>
                 <CustomSlider
                     disabled
                     value={r.position}
@@ -175,7 +206,7 @@ const RepCard = ({r}) => {
                 />
             </Box>
             </Grid>
-            <Grid item xs={3} align="center">
+            <Grid item xs={2.5} align="center">
                 <Grid container direction="column" spacing={0.5}>
                     <Grid item>
                     <Button onClick={() => handleClickOpenEdit()} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ width:'60%', bgcolor:"#EBD728", '&:hover': {backgroundColor: '#E8DB6B', }}}>
@@ -193,19 +224,29 @@ const RepCard = ({r}) => {
 
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Confirmación</DialogTitle>
-            <div><DialogContent>
-                <Alert severity="warning">
-                <AlertTitle>{"¿Está seguro que desea detener la reproducción "+r.id+"?"}</AlertTitle>
-                </Alert>
+            <div>
+            <DialogContent>
+                {(loading) ? (
+                    <Box display="flex" justifyContent="center" alignItems="center">
+                        <CircularProgress sx={{color:'#ED7D31'}}/>
+                    </Box>
+                ) : (
+                    <Alert severity="warning">
+                    <AlertTitle>{"¿Está seguro que desea detener la reproducción "+r.id+"?"}</AlertTitle>
+                    </Alert>
+                )}
             </DialogContent>
+            {(!loading) ? (
             <DialogActions>
-                <IconButton onClick={handleClose}>
+                <IconButton onClick={handleDelete}>
                     <DoneIcon sx={{color:'green'}}/>
                 </IconButton>
                 <IconButton onClick={handleClose}>
                     <CloseIcon sx={{color:'red'}}/>
                 </IconButton>
-            </DialogActions> </div>
+            </DialogActions> 
+            ) : ""}
+            </div>
         </Dialog>
 
         <Box sx={{position: "absolute", bottom: 20, right: 20}} >

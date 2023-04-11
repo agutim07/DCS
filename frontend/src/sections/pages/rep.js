@@ -14,6 +14,7 @@ import {styled} from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
 
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -37,25 +38,16 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export default function Rep(){
-    const rep = {id:1, canal:3, start:1680972630, end:1680972900, position:120, speed:1};
-    const rep2 = {id:2, canal:5, start:1680972000, end:1680972300, position:200, speed:1};
-
     const [reps, setReps] = useState([]);
     const [canales, setCanales] = useState([]);
+    const [empty, setEmpty] = useState(true);
 
     useEffect(() => {
-        const temp = [];
-        temp.push(rep);
-        temp.push(rep2);
-        setReps(temp);
-
         async function checkInstallations() {
             setLoading(true);
             try {
                 const response = await axios.get(`${backend}/checkinstall?1`);
-                if(response.data=="OK"){
-
-                }else{
+                if(response.data!="OK"){
                     setError(response.data);
                 }
             } catch(e) {
@@ -93,8 +85,38 @@ export default function Rep(){
 
         checkInstallations();
         checkChannels();
-
+        update();
     }, []);
+
+    async function update() {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${backend}/reproduccionesRaw`);
+            if(response.data=="empty"){
+                setEmpty(true);
+                setReps([]);
+            }else{
+                setEmpty(false);
+                
+                let repsArray = response.data;
+                const repsArray1 = [];
+
+                let i=0;
+                while(i<repsArray.length) {
+                    let iter = {id:repsArray[i], canal:repsArray[i+1], start:repsArray[i+2], end:repsArray[i+3], position:repsArray[i+4], speed:repsArray[i+5]};
+                    console.log(iter);
+                    i = i+6;
+                    repsArray1.push(iter);
+                }
+
+                setReps(repsArray1);
+            }
+        } catch(e) {
+            setError("No se ha podido conectar con el backend");
+            console.log(e);
+        } 
+        setLoading(false);
+    }
 
     
     const [loading, setLoading] = React.useState(false);
@@ -110,12 +132,30 @@ export default function Rep(){
         setOpen(false);
     };
 
+    const [snackOpen, setSnackOpen] = React.useState(false);
+    const [snackState, setSnackState] = useState("");
+    const [snackMessage, setSnackMessage] = useState("");
+
+    function openSnack(message, state){
+        setSnackMessage(message);
+        setSnackState(state);
+        setSnackOpen(true);
+    };
+
+    const handleSnackClose = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        setSnackOpen(false);
+    };
+
     return(
         <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center">
             <Typography component="h1" variant="h4">
             Reproducciones
             </Typography>
-            <IconButton>
+            <IconButton onClick={update}>
                 <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
             </IconButton>
             <Box sx={{ width: '90%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
@@ -126,9 +166,16 @@ export default function Rep(){
                         <Grid container direction="column" spacing={2}>
                         {reps.map((r) => (
                             <Grid item sx={{borderBottom: `1px solid grey`}}> 
-                                <RepCard r={r} />
+                                <RepCard r={r} update={update} returnMessage={openSnack} />
                             </Grid>
                         ))}
+                        {(empty) ? (
+                            <Grid item sx={{borderBottom: `1px solid grey`}}> 
+                                <Typography sx={{mb:2}} component="h1" variant="h5">
+                                    No hay ninguna reproducción activa
+                                </Typography>
+                            </Grid>
+                        ) : ""}
                             <Grid item>
                                 <Button onClick={handleClickOpen} startIcon={<AddIcon />} type="submit" variant="contained" sx={{ color:'black', width:'70%', bgcolor:"#31E3E9", '&:hover': {backgroundColor: '#9FECEF', }}}>
                                     Añadir reproducción
@@ -177,6 +224,13 @@ export default function Rep(){
                     </DialogActions>
                 </Dialog>
             </Box>
+
+            <Snackbar open={snackOpen} autoHideDuration={5000} onClose={handleSnackClose}>
+                <Alert onClose={handleSnackClose} severity={snackState} sx={{ width: '100%' }}>
+                    {snackMessage}
+                </Alert>
+            </Snackbar>
+
         </Grid>
     );
 }
