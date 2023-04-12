@@ -29,6 +29,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
 import RepCard from './sub/repcard'
+import RepAdd from './sub/repadd'
 
 import axios from "axios";
 import {backend} from '../../variables/global'
@@ -122,8 +123,6 @@ export default function Rep(){
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState("false");
 
-    const [details, setDetails] = useState({canal:0, inicio:0, fin:0});
-
     const [open, setOpen] = useState(false);
     const handleClickOpen = () => {
         setOpen(true);
@@ -144,7 +143,7 @@ export default function Rep(){
 
     const handleSnackClose = (event, reason) => {
         if (reason === 'clickaway') {
-        return;
+            return;
         }
 
         setSnackOpen(false);
@@ -194,38 +193,12 @@ export default function Rep(){
             </Box>
 
             <Box sx={{position: "absolute", bottom: 20, right: 20}} >
-                <Dialog fullWidth="300px" sx={{width:"200"}} open={open} onClose={handleClose}>
-                    <DialogTitle id="form-dialog-title">Añadir reproducción</DialogTitle>
-                    <DialogContent>
-                        <FormControl fullWidth>
-                        <br></br>
-                        <TextField select label="Canal" defaultValue="1" helperText="Selecciona un canal">
-                        {canales.map((option) => (
-                            <MenuItem key={option.id} value={option.id}>
-                            {option.id+" - "+option.syntax}
-                            </MenuItem>
-                        ))}
-                        </TextField>
-                        <br></br>
-                        <TextField type="number" autoFocusmargin="dense" id="inicio" label="Inicio en tiempo epoch" fullWidth onChange={e => setDetails({ ...details, inicio: e.target.value })}/>
-                        <br></br>
-                        <TextField type="number" autoFocusmargin="dense" id="inicio" label="Final en tiempo epoch" fullWidth onChange={e => setDetails({ ...details, fin: e.target.value })}/>
-                        <br></br>
-                        </FormControl>
-                        <br></br>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
-                            Iniciar
-                        </Button>
-                        <IconButton onClick={handleClose}>
-                            <CloseIcon sx={{color:'red'}}/>
-                        </IconButton>
-                    </DialogActions>
+                <Dialog fullWidth={true} maxWidth='lg' open={open} onClose={handleClose}>
+                    <RepAdd close={handleClose} canales={canales} update={update} returnMessage={openSnack} />
                 </Dialog>
             </Box>
 
-            <Snackbar open={snackOpen} autoHideDuration={5000} onClose={handleSnackClose}>
+            <Snackbar open={snackOpen} autoHideDuration={4000} onClose={handleSnackClose}>
                 <Alert onClose={handleSnackClose} severity={snackState} sx={{ width: '100%' }}>
                     {snackMessage}
                 </Alert>

@@ -152,15 +152,15 @@ const RepCard = ({r, update, returnMessage}) => {
         try {
             const response = await axios.get(`${backend}/stopreplay?reproduccion=${r.id}`);
             if(response.data==okeyMsg){
-                update();
                 state="success"; msg="Reproducción "+r.id+" eliminada correctamente";
             }else{
                 state="error"; msg="Error al eliminar la reproducción "+r.id;
             }
         } catch(e) {
-            //setError("No se ha podido conectar con el backend");
+            state="error"; msg="Error al eliminar la reproducción: "+e;
             console.log(e);
         } 
+        update();
         setOpen(false);
         setLoading(false);
         returnMessage(msg,state);
@@ -177,13 +177,13 @@ const RepCard = ({r, update, returnMessage}) => {
             <Grid item xs={0.5} align="left">
                 {r.id}
             </Grid>
-            <Grid item xs={1} align="left">
+            <Grid item xs={1} align="right">
                 <SmallChip label={"Canal " + r.canal} variant="outlined" />
             </Grid>
-            <Grid item xs={0.5} align="center">
+            <Grid item xs={0.8} align="center">
                 <SmallChip label={"x" + r.speed} variant="outlined" />
             </Grid>
-            <Grid item xs={3} align="center">
+            <Grid item xs={2.7} align="left">
                 <Grid container direction="column" spacing={0.5}>
                     <Grid item>
                         <SmallChip label={epochToDate(r.start)} variant="outlined" />
