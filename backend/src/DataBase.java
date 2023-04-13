@@ -291,6 +291,37 @@ public class DataBase {
         return packets;
     }
 
+    //EXTRAER PCAP'S: GRABACIONES DE UN CANAL
+    public ArrayList<Long> getChannelData(int ch){
+        ArrayList<Long> data = new ArrayList<>();
+
+        String check = "SELECT start,stop FROM grabaciones WHERE canal = ?";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+            pstmt.setLong(1, ch);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                data.add(rs.getLong("start"));
+                data.add(rs.getLong("stop"));
+            }
+
+            log.addInfo("BD: Se ha consultado información con la base de datos satisfactoriamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
     //MECANISMO DE BORRADO: ELIMINA UNA PCAP DE UNA GRABACIÓN
     public void deletionMechanism(String file){
         log.addInfo("BD: Mecanismo de borrado automático en proceso");

@@ -57,6 +57,7 @@ public class Server{
         server.createContext("/logout", new LogoutHandler());
         server.createContext("/canales", new CanalesHandler());
         server.createContext("/canalesRaw", new CanalesRawHandler());
+        server.createContext("/canalesData", new CanalesDataHandler());
         server.createContext("/start", new StartHandler());
         server.createContext("/stop", new StopHandler());
         server.createContext("/replay", new ReplayHandler());
@@ -223,6 +224,35 @@ public class Server{
                 ArrayList<String> canales = dataCaptureSystem.getChannelsRaw();
                 if(canales.size()==0){
                     response.append("error");
+                }else{
+                    response.append(canales);
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class CanalesDataHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                int ch = Integer.parseInt(parameters.substring(6));
+
+                //este array incluirá cada dos posiciones el inicio y fin de las grabaciones
+                ArrayList<Long> canales = DB.getChannelData(ch);
+                if(canales.size()==0){
+                    response.append("empty");
                 }else{
                     response.append(canales);
                 }
