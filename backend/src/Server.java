@@ -59,8 +59,10 @@ public class Server{
         server.createContext("/canalesRaw", new CanalesRawHandler());
         server.createContext("/canalesData", new CanalesDataHandler());
         server.createContext("/start", new StartHandler());
+        server.createContext("/startRaw", new StartRawHandler());
         server.createContext("/stop", new StopHandler());
         server.createContext("/replay", new ReplayHandler());
+        server.createContext("/replayRaw", new ReplayRawHandler());
         server.createContext("/stopreplay", new StopReplayHandler());
         server.createContext("/jumpreplay", new JumpReplayHandler());
         server.createContext("/speedreplay", new SpeedReplayHandler());
@@ -296,6 +298,37 @@ public class Server{
         }
     }
 
+    static class StartRawHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                response.append(notLogged()); 
+                log.addWarning("Intento de acceso a sección no permitido");
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                if(Server.checkSyntax(parameters)){
+                    log.addInfo("START RECORDING: Intento de inicio grabacion en el canal "+parameters.substring(6));
+                    String output = dataCaptureSystem.startRecording(Integer.parseInt(parameters.substring(6)));
+                    response.append(output);
+                    //Grabacion iniciada
+                }else{
+                    //error de syntax, devolvemos el codigo 400: bad request
+                    code = 400;
+                    log.addWarning("START RECORDING: Error, syntax incorrecto");
+                    response.append("Syntax incorrecto, recuerde: <b>/start?canal=n</b> -> para comenzar la grabacion en un canal {SUSTITUIR n POR EL NUMERO DEL CANAL}<br/>");
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
     //URL -> PAGINA STOP: PARA DETENER GRABACIONES
     static class StopHandler implements HttpHandler {
         @Override
@@ -392,6 +425,56 @@ public class Server{
             }
 
             response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class ReplayRawHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                response.append(notLogged()); 
+                log.addWarning("Intento de acceso a sección no permitido");
+                code=401;
+            }else if(!DB.status){
+                //si desde DB no se consiguio conectar a la base de datos no podremos usar las funciones de reproduccion, devolvemos 500: error del servidor
+                log.addWarning("START REPLAY: No disponible debido a que no hay conexion con la base de datos");
+                response.append("No disponible debido a que no hay conexion con la base de datos"); 
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                //en el array pos tenemos dos posiciones de caracteres dentro de la sintaxis enviada: el que marca el fin del canal y el que marca el fin del tiempo de inicio
+                //si la primera posicion es -1 los valores no se han conseguido obtener correctamente
+                int pos[] = Server.checkSyntaxRep(parameters);
+                if(pos[0]!=-1){
+                    int ch = Integer.parseInt(parameters.substring(6,pos[0]));
+                    long inicio = Long.parseLong(parameters.substring(pos[0]+8,pos[1]));  
+                    long fin = Long.parseLong(parameters.substring(pos[1]+5));  
+
+                    if(!dataCaptureSystem.checkChannel(ch)){
+                        log.addWarning("START REPLAY: Error, el canal indicado "+ch+" no existe");
+                        response.append("El canal indicado "+ch+" no existe");
+                    }else{
+                        String output = "";
+                        log.addInfo("START REPLAY: Intento de reproduccion del canal "+ch+" desde "+inicio+" a "+fin);
+                        try {
+                            output = dataReplaySystem.startReplay(ch, inicio, fin);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        response.append(output);
+                    }
+                }else{
+                    //error de syntax, devolvemos el codigo 400: bad request
+                    log.addWarning("START REPLAY: Error, syntax incorrecto");
+                    response.append("Valores incorrectos en los tiempos");
+                }
+            }
+
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }
@@ -528,6 +611,54 @@ public class Server{
                     log.addWarning("SPEED REPLAY: Error, syntax incorrecto");
                     response.append("Syntax incorrecto, recuerde: <b>/speedreplay?reproduccion=n&velocidad=v</b> -> para modificar la velocidad de una rep activa {SUSTITUIR n POR EL NUMERO DE REP ACTIVA, v POR LA VELOCIDAD DE REPRODUCCION}<br/>");
                     response.append("*La velocidad de reproduccion a la cual cambiar debera estar entre 0.1 (x0.1) y 10 (x10)<br/>");
+                }
+            }
+
+            response.append("</body></html>");
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class modifyReplayHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+            response.append("<html><body>");
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                response.append(notLogged()); 
+                log.addWarning("Intento de acceso a sección no permitido");
+                code=401;
+            }else if(so.contains("window")){
+                //si el SO en el que estamos es Windows no podremos usar las funciones de reproduccion, devolvemos el código 401: unauthorized
+                log.addWarning("JUMP REPLAY: La reproducción solo está disponible en sistemas Linux");
+                response.append("La reproduccion y sus funciones solo estan disponibles en sistemas Linux<br/>"); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                //check marca la posicion del caracter dentro de la sintaxis enviada: el que marca el fin del numero de reproduccion
+                //si es -1 los valores no se han conseguido obtener correctamente
+                int check = Server.checkSyntaxJumpRep(parameters);
+                if(check!=-1){
+                    String output = "";
+                    log.addInfo("JUMP REPLAY: Intento de salto de la reproduccion "+parameters.substring(13,check)+" al segundo "+parameters.substring(check+10));
+                    try {
+                        output = dataReplaySystem.modifyReplay(Integer.parseInt(parameters.substring(13,check)),Integer.parseInt(parameters.substring(check+10)),0.0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    response.append(output+"<br/>");
+
+                    //si DRS devuelve cualquier cosa distinta al string previo la reproduccion no se ha saltado, devolvemos 500: error del servidor
+                    if(!output.substring(0, 20).equals("Reproduccion saltada")){code=500;}
+                }else{
+                    //error de syntax, devolvemos el codigo 400: bad request
+                    code = 400;
+                    log.addWarning("JUMP REPLAY: Error, syntax incorrecto");
+                    response.append("Syntax incorrecto, recuerde: <b>/jumpreplay?reproduccion=n&segundos=s</b> -> para saltar a un tiempo de una rep activa {SUSTITUIR n POR EL NUMERO DE REP ACTIVA, s POR LOS SEGUNDOS DESDE SU INICIO QUE SE QUIEREN AVANZAR}<br/>");
                 }
             }
 
