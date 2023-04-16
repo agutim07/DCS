@@ -2,9 +2,10 @@ import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import MuiAlert from '@mui/material/Alert';
+import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
@@ -16,9 +17,16 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Snackbar from '@mui/material/Snackbar';
 
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
@@ -44,7 +52,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '80%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -52,10 +60,13 @@ const style = {
 };
 
 const RepAdd = ({close, canales, update, returnMessage}) => {
-    const [details, setDetails] = useState({canal:0, inicio:0, fin:1, canal:1});
+    const [details, setDetails] = useState({canal:1, inicio:0, fin:1});
     const [inicioDate, setInicioDate] = React.useState(dayjs(epochToDate(details.inicio)));
     const [finDate, setFinDate] = React.useState(dayjs(epochToDate(details.fin)));
 
+    const [loadingInfo, setLoadingInfo] = React.useState(true);
+    const [grabaciones, setGrabaciones] = useState([]);
+    const [info, setInfo] = React.useState("");
     const [openInfo, setOpenInfo] = React.useState(false);
     const handleOpenInfo = () => setOpenInfo(true);
     const handleCloseInfo = () => setOpenInfo(false);
@@ -64,6 +75,15 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
         var d = new Date(0);
         d.setUTCSeconds(epoch);
         return d;
+    }
+
+    function epochToDateLabel(epoch){
+        var d = epochToDate(epoch);
+        var seconds = d.getSeconds();
+        if(seconds<10){seconds="0"+seconds;}
+
+        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+seconds;
+        return out;
     }
 
     function changeDateE(epoch,mode){
@@ -90,6 +110,70 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
         }
     }
 
+    useEffect(() => {
+        getInfo(details.canal);
+    }, []);
+
+    function changeCanal(ch){
+        setDetails({ ...details, canal: ch});
+        getInfo(ch);
+    }
+
+    async function getInfo(ch) {
+        setLoadingInfo(true);
+        try {
+            const response = await axios.get(`${backend}/canalesData?canal=${ch}`);
+            if(response.data=="empty"){
+                setInfo("No hay ninguna grabación disponible en este canal");
+            }else{
+                const arrayChannels = response.data;
+                const arrayGrabaciones = [];
+                
+                let i=0, idNum=0;
+                while(i<arrayChannels.length) {
+                    idNum++;
+                    let temp = {id:idNum, inicio:arrayChannels[i], fin:arrayChannels[i+1]};
+                    i = i+2;
+                    arrayGrabaciones.push(temp);
+                }
+
+                setInfo("Hay "+idNum+" grabacion/es disponibles en este canal");
+                setGrabaciones(arrayGrabaciones);
+            }
+        } catch(e) {
+            console.log(e);
+        } 
+        setLoadingInfo(false);
+    }
+
+    const [error,setError] = useState("");
+
+    const [loadingAdd, setLoadingAdd] = useState(false);
+
+    const add = async () => {
+        setError("");
+        setLoadingAdd(true);
+        if(info=="No hay ninguna grabación disponible en este canal"){
+            setError("no se puede iniciar una reproducción ya que no hay grabaciones en el canal");
+        }else{
+            try {
+                const response = await axios.get(`${backend}/replayRaw?canal=${details.canal}&inicio=${details.inicio}&fin=${details.fin}`);
+                if(response.data.substring(0,21)=="Reproduccion iniciada"){
+                    let state="success", msg=response.data;
+                    update();
+                    returnMessage(msg,state);
+                    close();
+                }else{
+                    setError(response.data);
+                }
+            } catch(e) {
+                setError(e);
+                console.log(e);
+            }
+        }
+        setLoadingAdd(false);
+    }
+
     return(
         <div>
             <DialogTitle id="form-dialog-title">Añadir reproducción</DialogTitle>
@@ -98,7 +182,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                 <Grid item sx={{mb:3}}>
                     <Grid container alignItems="center" textAlign="center">
                         <Grid item xs={6}>
-                            <TextField select label="Canal" defaultValue="1">
+                            <TextField select label="Canal" value={details.canal ?? null} onChange={e => changeCanal(e.target.value)}>
                             {canales.map((option) => (
                                 <MenuItem key={option.id} value={option.id}>
                                 {option.id+" - "+option.syntax}
@@ -107,7 +191,13 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                             </TextField>
                         </Grid>
                         <Grid item xs={6}>
-                            <Button onClick={handleOpenInfo}>Open modal</Button>
+                        {(loadingInfo) ? (
+                            <Box display="flex" justifyContent="center" alignItems="center">
+                                <LinearProgress sx={{width:'50%'}}/>
+                            </Box>
+                            ) : (
+                            <Chip icon={<InfoIcon />} onClick={info=="No hay ninguna grabación disponible en este canal" ? null : handleOpenInfo } color='primary' label={info}/>
+                        )}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -138,13 +228,25 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             </Grid>  
             </DialogContent>
             <DialogActions>
-                <Button onClick={close} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
-                    Iniciar
-                </Button>
+                <Box sx={{position: 'relative' }}>
+                    <Button onClick={add} disabled={loadingAdd} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        Iniciar
+                    </Button>
+                    {loadingAdd && (
+                    <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                    )}
+                </Box>
                 <IconButton onClick={close}>
                     <CloseIcon sx={{color:'red'}}/>
                 </IconButton>
             </DialogActions>
+
+            {(error!="") ? (
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{mb:2}}>
+                <Alert sx={{color:'red'}} variant="outlined" severity="error" onClose={() => {setError("")}}><b>Error: </b>{error}</Alert>
+            </Box>
+            ) : ""}
+
             <Modal
                 open={openInfo}
                 onClose={handleCloseInfo}
@@ -152,12 +254,47 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Text in a modal
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                </Typography>
+                <Grid container spacing={2} columns={16}>
+                    <Grid item xs={8} align="left">
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            {"Grabaciones - Canal "+details.canal}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={8} align="right">
+                        <IconButton onClick={handleCloseInfo}>
+                            <CloseIcon sx={{color:'red'}}/>
+                        </IconButton>
+                    </Grid>
+                </Grid>
+                <TableContainer sx={{mt:2}} component={Paper}>
+                    <Table sx={{ minWidth: 650, backgroundColor: '#E9A272'}} size="small" aria-label="a dense table">
+                        <TableHead>
+                        <TableRow>
+                            <TableCell><b>ID</b></TableCell>
+                            <TableCell align="right"><b>Inicio&nbsp;(epoch)</b></TableCell>
+                            <TableCell align="right"><b>Inicio&nbsp;(local)</b></TableCell>
+                            <TableCell align="right"><b>Fin&nbsp;(epoch)</b></TableCell>
+                            <TableCell align="right"><b>Fin&nbsp;(local)</b></TableCell>
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        {grabaciones.map((g) => (
+                            <TableRow
+                            key={g.id}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                            <TableCell component="th" scope="row">
+                                {g.id}
+                            </TableCell>
+                            <TableCell align="right">{g.inicio}</TableCell>
+                            <TableCell align="right">{epochToDateLabel(g.inicio)}</TableCell>
+                            <TableCell align="right">{g.fin}</TableCell>
+                            <TableCell align="right">{epochToDateLabel(g.fin)}</TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
                 </Box>
             </Modal>
         </div>
