@@ -65,6 +65,7 @@ public class Server{
         server.createContext("/replayRaw", new ReplayRawHandler());
         server.createContext("/stopreplay", new StopReplayHandler());
         server.createContext("/jumpreplay", new JumpReplayHandler());
+        server.createContext("/modifyreplay", new ModifyReplayHandler());
         server.createContext("/speedreplay", new SpeedReplayHandler());
         server.createContext("/reproducciones", new StatusHandler());
         server.createContext("/reproduccionesRaw", new StatusRawHandler());
@@ -604,7 +605,7 @@ public class Server{
                     response.append(output+"<br/>");
 
                     //si DRS devuelve cualquier cosa distinta al string previo la reproduccion no ha cambiado velocidad, devolvemos 500: error del servidor
-                    if(!output.substring(0, 20).equals("Velocidad de reproduccion cambiada")){code=500;}
+                    if(!output.substring(0, 34).equals("Velocidad de reproduccion cambiada")){code=500;}
                 }else{
                     //error de syntax, devolvemos el codigo 400: bad request
                     code = 400;
@@ -619,50 +620,101 @@ public class Server{
         }
     }
 
-    static class modifyReplayHandler implements HttpHandler {
+    static class ModifyReplayHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
             int code = 200;
             StringBuilder response = new StringBuilder();
-            response.append("<html><body>");
 
             if(!logged){
                 //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
                 response.append(notLogged()); 
                 log.addWarning("Intento de acceso a sección no permitido");
                 code=401;
-            }else if(so.contains("window")){
-                //si el SO en el que estamos es Windows no podremos usar las funciones de reproduccion, devolvemos el código 401: unauthorized
-                log.addWarning("JUMP REPLAY: La reproducción solo está disponible en sistemas Linux");
-                response.append("La reproduccion y sus funciones solo estan disponibles en sistemas Linux<br/>"); 
-                code=401;
             }else{
                 String parameters = httpExchange.getRequestURI().getQuery();
-                //check marca la posicion del caracter dentro de la sintaxis enviada: el que marca el fin del numero de reproduccion
-                //si es -1 los valores no se han conseguido obtener correctamente
-                int check = Server.checkSyntaxJumpRep(parameters);
-                if(check!=-1){
-                    String output = "";
-                    log.addInfo("JUMP REPLAY: Intento de salto de la reproduccion "+parameters.substring(13,check)+" al segundo "+parameters.substring(check+10));
-                    try {
-                        output = dataReplaySystem.modifyReplay(Integer.parseInt(parameters.substring(13,check)),Integer.parseInt(parameters.substring(check+10)),0.0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    response.append(output+"<br/>");
 
-                    //si DRS devuelve cualquier cosa distinta al string previo la reproduccion no se ha saltado, devolvemos 500: error del servidor
-                    if(!output.substring(0, 20).equals("Reproduccion saltada")){code=500;}
+                ArrayList<Double> data = Server.checkSyntaxModifyRep(parameters);
+                if(data.size()!=0){
+                    int mode = data.get(0).intValue();
+                    int rep = data.get(1).intValue();
+
+                    if(mode==1){
+                        int secs = data.get(2).intValue();
+                        String output = "";
+
+                        log.addInfo("JUMP REPLAY: Intento de salto de la reproduccion "+rep+" al segundo "+secs);
+                        try {
+                            output = dataReplaySystem.modifyReplay(rep,secs,0.0);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if(output.substring(0, 20).equals("Reproduccion saltada")){
+                            response.append("Reproduccion modificada correctamente: salto de tiempo");
+                        }else{
+                            response.append(output);
+                        }
+                    }
+
+                    if(mode==2){
+                        Double speed = data.get(2);
+                        String output = "";
+
+                        log.addInfo("SPEED REPLAY: Intento de cambio de velocidad de la reproduccion "+rep+" a velocidad x"+speed);
+                        try {
+                            output = dataReplaySystem.modifyReplay(rep,0,speed);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if(output.substring(0, 34).equals("Velocidad de reproduccion cambiada")){
+                            response.append("Reproduccion modificada correctamente: cambio de velocidad");
+                        }else{
+                            response.append(output);
+                        }
+                    }
+
+                    if(mode==3){
+                        int secs = data.get(2).intValue();
+                        Double speed = data.get(3);
+                        String output = "", output2="";
+
+                        log.addInfo("JUMP REPLAY: Intento de salto de la reproduccion "+rep+" al segundo "+secs);
+                        log.addInfo("SPEED REPLAY: Intento de cambio de velocidad de la reproduccion "+rep+" a velocidad x"+speed);
+
+                        try {
+                            output = dataReplaySystem.modifyReplay(rep,secs,0.0);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            output2 = dataReplaySystem.modifyReplay(rep,0,speed);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        
+                        if(output.substring(0, 20).equals("Reproduccion saltada")){
+                            if(output2.substring(0, 34).equals("Velocidad de reproduccion cambiada")){
+                                response.append("Reproduccion modificada correctamente: salto de tiempo y cambio de velocidad");
+                            }else{
+                                response.append("Salto de tiempo correcto pero cambio de velocidad erróneo: "+output);
+                            }
+                        }else{
+                            response.append(output);
+                        }
+                    }
+
                 }else{
                     //error de syntax, devolvemos el codigo 400: bad request
                     code = 400;
-                    log.addWarning("JUMP REPLAY: Error, syntax incorrecto");
-                    response.append("Syntax incorrecto, recuerde: <b>/jumpreplay?reproduccion=n&segundos=s</b> -> para saltar a un tiempo de una rep activa {SUSTITUIR n POR EL NUMERO DE REP ACTIVA, s POR LOS SEGUNDOS DESDE SU INICIO QUE SE QUIEREN AVANZAR}<br/>");
+                    log.addWarning("MODIFY REPLAY: Error, syntax incorrecto");
+                    response.append("Syntax incorrecto");
                 }
             }
 
-            response.append("</body></html>");
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }
@@ -927,6 +979,55 @@ public class Server{
         }
 
         return pos;
+    }
+
+    public static ArrayList<Double> checkSyntaxModifyRep(String query){
+        if(query==null){
+            return new ArrayList<>();
+        }else{
+            ArrayList<Double> out = new ArrayList<>();
+            Double mode = Double.parseDouble(query.substring(0,1));
+            out.add(mode);
+
+            //buscamos dos &'s'
+            int pos1 = -1, pos2 = -1;
+            for(int i=0; i<query.length(); i++){
+                if(query.charAt(i)=='&'){
+                    if(pos1==-1){
+                        pos1=i;
+                    }else{
+                        pos2=i;
+                        break;
+                    }
+                }
+            }
+
+            if(pos1==-1 || pos2==-1){return new ArrayList<>();}
+            Double rep = Double.parseDouble(query.substring(pos1+1,pos2));
+            out.add(rep);
+            
+            if(mode!=3){
+                Double item = Double.parseDouble(query.substring(pos2+1));
+                out.add(item);
+            }else{
+                int pos3 = -1;
+                for(int i=0; i<query.length(); i++){
+                    if(query.charAt(i)=='&' && i!=pos1 && i!=pos2){
+                        pos3=i;
+                        break;
+                    }
+                }
+
+                if(pos3==-1){return new ArrayList<>();}
+                Double time = Double.parseDouble(query.substring(pos2+1,pos3));
+                out.add(time);
+
+                Double speed = Double.parseDouble(query.substring(pos3+1));
+                out.add(speed);
+            }
+
+            return out;
+        }
     }
 
     //se ejecuta si se apaga el programa: simplemente imprime por pantalla y añade al log el cierre inmediato
