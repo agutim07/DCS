@@ -17,6 +17,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import TimeIcon from '@mui/icons-material/AccessTime';
+import SpeedIcon from '@mui/icons-material/Speed';
 
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
@@ -287,18 +289,18 @@ const RepCard = ({r, update, returnMessage}) => {
         </Dialog>
 
         <Box sx={{position: "absolute", bottom: 20, right: 20}} >
-            <Dialog fullWidth="330px" sx={{width:"250"}} open={openEdit} onClose={handleCloseEdit}>
+            <Dialog fullWidth maxWidth='md'  open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle id="form-dialog-title">{"Modificar reproducción "+r.id}</DialogTitle>
                 <DialogContent>
                     <Grid container direction="column" spacing={0.5} sx={{my:3}}>
                         <Grid item sx={{mb:3}}>
                             <Grid container alignItems="center">
-                                <Grid item xs={3}>
+                                <Grid item xs={2.4}>
                                     <Typography component="h1" variant="h6">
                                         Tiempo
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={9}>
+                                <Grid item xs={6.3} align="center">
                                 <CustomSlider
                                     value = { changeTime ? time : r.position }
                                     valueLabelFormat={ changeTime ? valuetext(time) : valuetext(r.position) }
@@ -310,16 +312,19 @@ const RepCard = ({r, update, returnMessage}) => {
                                     onChange={(e, newValue) => {setTime(newValue); setChangeTime(true)}}
                                 />
                                 </Grid>
+                                <Grid item xs={3.3} align="right">
+                                    <SmallChip icon={<TimeIcon />} sx={{border: '2px solid', borderColor: "#EBD728", ...(changeTime && {borderColor: "green"})}} label={ changeTime ? epochToDate(time+r.start) : epochToDate(r.position+r.start) } variant="outlined" />
+                                </Grid>
                             </Grid>
                         </Grid>
                         <Grid item>
                             <Grid container alignItems="center">
-                                <Grid item xs={3}>
+                                <Grid item xs={2.4}>
                                     <Typography component="h1" variant="h6">
                                         Velocidad
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={9}>
+                                <Grid item xs={6.3} align="center">
                                 <Slider
                                     track={false}
                                     aria-labelledby="track-false-slider"
@@ -332,6 +337,9 @@ const RepCard = ({r, update, returnMessage}) => {
                                     max={10}
                                     onChange={(e, newValue) => setSpeed(newValue)}
                                 />
+                                </Grid>
+                                <Grid item xs={3.3} align="right">
+                                    <SmallChip icon={<SpeedIcon />} sx={{border: '2px solid', borderColor: "#EBD728", ...(speed!=r.speed && {borderColor: "green"})}} label={'x'+speed} variant="outlined" />
                                 </Grid>
                             </Grid>
                         </Grid>

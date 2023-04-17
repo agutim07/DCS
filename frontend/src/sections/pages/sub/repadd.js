@@ -64,7 +64,7 @@ const style = {
 const CustomFontTheme = createTheme({
     typography: {
       fontFamily: 'Copperplate Gothic Light',
-      fontSize: 14
+      fontSize: 12
     }
   });
 
