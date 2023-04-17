@@ -47,6 +47,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
+import { createTheme, ThemeProvider} from '@mui/material/styles';
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -58,6 +60,13 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
+
+const CustomFontTheme = createTheme({
+    typography: {
+      fontFamily: 'Copperplate Gothic Light',
+      fontSize: 14
+    }
+  });
 
 const RepAdd = ({close, canales, update, returnMessage}) => {
     const [details, setDetails] = useState({canal:1, inicio:0, fin:1});
@@ -80,9 +89,12 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
     function epochToDateLabel(epoch){
         var d = epochToDate(epoch);
         var seconds = d.getSeconds();
-        if(seconds<10){seconds="0"+seconds;}
+        var seconds = d.getSeconds(), minutes = d.getMinutes(), hours = d.getHours();
+        if(seconds<10){seconds="0"+seconds;} 
+        if(minutes<10){minutes="0"+minutes;}
+        if(hours<10){hours="0"+hours;}
 
-        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+seconds;
+        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+hours+":"+minutes+":"+seconds;
         return out;
     }
 
@@ -179,6 +191,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             <DialogTitle id="form-dialog-title">Añadir reproducción</DialogTitle>
             <DialogContent>
             <Grid container direction="column" spacing={0.5} sx={{my:3}}>
+                <ThemeProvider theme={CustomFontTheme}>
                 <Grid item sx={{mb:3}}>
                     <Grid container alignItems="center" textAlign="center">
                         <Grid item xs={6}>
@@ -225,6 +238,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                         </Grid>
                     </Grid>
                 </Grid>
+                </ThemeProvider>
             </Grid>  
             </DialogContent>
             <DialogActions>
@@ -271,6 +285,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                         <TableHead>
                         <TableRow>
                             <TableCell><b>ID</b></TableCell>
+                            <TableCell align="right"><b>Duración&nbsp;(secs)</b></TableCell>
                             <TableCell align="right"><b>Inicio&nbsp;(epoch)</b></TableCell>
                             <TableCell align="right"><b>Inicio&nbsp;(local)</b></TableCell>
                             <TableCell align="right"><b>Fin&nbsp;(epoch)</b></TableCell>
@@ -286,6 +301,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                             <TableCell component="th" scope="row">
                                 {g.id}
                             </TableCell>
+                            <TableCell align="right">{g.fin-g.inicio}</TableCell>
                             <TableCell align="right">{g.inicio}</TableCell>
                             <TableCell align="right">{epochToDateLabel(g.inicio)}</TableCell>
                             <TableCell align="right">{g.fin}</TableCell>

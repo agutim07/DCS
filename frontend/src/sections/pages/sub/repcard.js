@@ -102,10 +102,12 @@ const RepCard = ({r, update, returnMessage}) => {
     function epochToDate(epoch){
         var d = new Date(0);
         d.setUTCSeconds(epoch);
-        var seconds = d.getSeconds();
-        if(seconds<10){seconds="0"+seconds;}
+        var seconds = d.getSeconds(), minutes = d.getMinutes(), hours = d.getHours();
+        if(seconds<10){seconds="0"+seconds;} 
+        if(minutes<10){minutes="0"+minutes;}
+        if(hours<10){hours="0"+hours;}
 
-        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+seconds;
+        var out = d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+hours+":"+minutes+":"+seconds;
         return out;
     }
 
@@ -170,6 +172,41 @@ const RepCard = ({r, update, returnMessage}) => {
     const handleClickOpenEdit = () => {setOpenEdit(true); setTime(r.position); setSpeed(r.speed);};
     const handleCloseEdit = () => {setOpenEdit(false); setChangeTime(false);};
     const [changeTime, setChangeTime] = React.useState(false);
+
+    const okeyMsgs = ["Reproduccion modificada correctamente: cambio de velocidad","Reproduccion modificada correctamente: salto de tiempo", "Reproduccion modificada correctamente: salto de tiempo y cambio de velocidad"];
+    const [error,setError] = useState("");
+    const [loadingModify, setLoadingModify] = useState(false);
+
+    const handleModify = async () => {
+        if(!changeTime && speed==r.speed){
+            setError("No se ha modificado ningun valor de la reproducción");
+            return;
+        }
+
+        let mode = 3, request = "";
+        if(speed==r.speed){mode = 1; request=mode+"&"+r.id+"&"+time;}
+        if(!changeTime){mode = 2; request=mode+"&"+r.id+"&"+speed;}
+        if(mode==3){request=mode+"&"+r.id+"&"+time+"&"+speed;}
+
+        setLoadingModify(true);
+        let state = ""; let msg = "";
+        try {
+            const response = await axios.get(`${backend}/modifyreplay?${request}`);
+            console.log(response.data);
+            if(response.data==okeyMsgs[0] || response.data==okeyMsgs[1] || response.data==okeyMsgs[2]){
+                state="success"; msg="Reproducción "+r.id+" modificada correctamente";
+            }else{
+                state="error"; msg="Error al modificar la reproducción "+r.id+": "+response.data;
+            }
+        } catch(e) {
+            state="error"; msg="Error al modificar la reproducción: "+e;
+            console.log(e);
+        } 
+        update();
+        setOpenEdit(false);
+        setLoadingModify(false);
+        returnMessage(msg,state);
+    };
 
     return(
         <div>
@@ -301,13 +338,23 @@ const RepCard = ({r, update, returnMessage}) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                        <Button onClick={handleCloseEdit} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                    <Box sx={{position: 'relative' }}>
+                        <Button onClick={handleModify} disabled={loadingModify} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
                             Aplicar cambios
                         </Button>
-                        <IconButton onClick={handleCloseEdit}>
-                            <CloseIcon sx={{color:'red'}}/>
-                        </IconButton>
+                        {loadingModify && (
+                        <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                        )}
+                    </Box>
+                    <IconButton onClick={handleCloseEdit}>
+                        <CloseIcon sx={{color:'red'}}/>
+                    </IconButton>
                 </DialogActions>
+                {(error!="") ? (
+                <Box display="flex" justifyContent="center" alignItems="center" sx={{mb:2, mt:1}}>
+                    <Alert sx={{color:'orange'}} variant="outlined" severity="warning" onClose={() => {setError("")}}><b>Error: </b>{error}</Alert>
+                </Box>
+                ) : ""}
             </Dialog>
         </Box>
         </div> 

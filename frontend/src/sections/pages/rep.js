@@ -105,7 +105,6 @@ export default function Rep(){
                 let i=0;
                 while(i<repsArray.length) {
                     let iter = {id:repsArray[i], canal:repsArray[i+1], start:repsArray[i+2], end:repsArray[i+3], position:repsArray[i+4], speed:repsArray[i+5]};
-                    console.log(iter);
                     i = i+6;
                     repsArray1.push(iter);
                 }
