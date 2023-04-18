@@ -72,7 +72,7 @@ const Header = ({logout}) => {
                             <Button sx={location.pathname=='/grabaciones' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/grabaciones')}>Grabaciones</Button>
                             <Button sx={location.pathname=='/reproducciones' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/reproducciones')}>Reproducciones</Button>
                             <Button sx={location.pathname=='/datos' ? selected2 : buttonProps2} variant="outlined" onClick={() => changePage('/datos')}>Datos</Button>
-                            <Button sx={location.pathname=='/parametros' ? selected : buttonProps} variant="outlined" onClick={() => changePage('/parametros')}>Parámetros</Button>
+                            <Button sx={location.pathname=='/parametros' || location.pathname=='/parametros/config' || location.pathname=='/parametros/canales' ? selected : buttonProps} variant="outlined" onClick={() => changePage('/parametros')}>Parámetros</Button>
                     </Grid>
                     <Grid item xs={2} align="right">
                         <IconButton onClick={endSession}>

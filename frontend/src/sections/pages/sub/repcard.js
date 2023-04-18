@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import MuiAlert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -14,9 +13,7 @@ import {styled} from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import TimeIcon from '@mui/icons-material/AccessTime';
 import SpeedIcon from '@mui/icons-material/Speed';
 
@@ -96,7 +93,7 @@ const RepCard = ({r, update, returnMessage}) => {
         }, 1000);
     
         return () => clearInterval(interval);
-      }, []);
+    }, []);
 
     const [time, setTime] = React.useState(r.position);
     const [speed, setSpeed] = React.useState(r.speed);
