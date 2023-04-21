@@ -10,6 +10,8 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import Slider from '@mui/material/Slider';
+import Snackbar from '@mui/material/Snackbar';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -22,6 +24,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import DoneIcon from '@mui/icons-material/Done';
+import WarningIcon from '@mui/icons-material/Warning';
 
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -37,6 +40,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 import { createTheme, ThemeProvider} from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 
 const style = {
   position: 'absolute',
@@ -55,10 +59,43 @@ const CustomFontTheme = createTheme({
       fontFamily: 'Copperplate Gothic Light',
       fontSize: 14
     }
-  });
+});
+
+const SliderTrue = styled(Slider)({
+    color: '#3EEC61',
+    height: 8,
+    '&.Mui-disabled': {
+        "& .MuiSlider-thumb ": {
+            color: '#3EEC61',
+            height: 0,
+            width: 0,
+        },
+        "& .MuiSlider-track": {
+          backgroundColor: "#3EEC61",
+        },
+    }
+})
+
+const SliderFalse = styled(Slider)({
+    color: 'grey',
+    height: 3,
+    '&.Mui-disabled': {
+        "& .MuiSlider-thumb ": {
+            color: 'grey',
+            height: 0,
+            width: 0,
+        },
+        "& .MuiSlider-track": {
+          backgroundColor: "grey",
+        },
+        '& .MuiSlider-rail': {
+            color: 'grey',
+        },
+    }
+})
 
 const RepAdd = ({close, canales, update, returnMessage}) => {
-    const [details, setDetails] = useState({canal:1, inicio:0, fin:1});
+    const [details, setDetails] = useState({canal:1, inicio:Math.round(Date.now()/1000), fin:Math.round((Date.now()/1000)+1)});
     const [inicioDate, setInicioDate] = React.useState(dayjs(epochToDate(details.inicio)));
     const [finDate, setFinDate] = React.useState(dayjs(epochToDate(details.fin)));
 
@@ -93,9 +130,11 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
         if(mode==0){
             setDetails({ ...details, inicio: epoch });
             setInicioDate(dayjs(d));
+            getGrabacionesSlider(0,epoch);
         }else{
             setDetails({ ...details, fin: epoch });
             setFinDate(dayjs(d));
+            getGrabacionesSlider(1,epoch);
         }
     }
 
@@ -105,9 +144,11 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
         if(mode==0){
             setDetails({ ...details, inicio: (Date.parse(d) / 1000) });
             setInicioDate(date);
+            getGrabacionesSlider(0,(Date.parse(d) / 1000));
         }else{
             setDetails({ ...details, fin: (Date.parse(d) / 1000) });
             setFinDate(date);
+            getGrabacionesSlider(1,(Date.parse(d) / 1000));
         }
     }
 
@@ -126,6 +167,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             const response = await axios.get(`${backend}/canalesData?canal=${ch}`);
             if(response.data=="empty"){
                 setInfo("No hay ninguna grabación disponible en este canal");
+                getGrabacionesSlider(2,[]);
             }else{
                 const arrayChannels = response.data;
                 const arrayGrabaciones = [];
@@ -140,11 +182,72 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
 
                 setInfo("Hay "+idNum+" grabacion/es disponibles en este canal");
                 setGrabaciones(arrayGrabaciones);
+                getGrabacionesSlider(2,arrayGrabaciones);
             }
         } catch(e) {
             console.log(e);
         } 
         setLoadingInfo(false);
+    }
+
+    const [grabSlider,setGrabSlider] = useState([]);
+
+    function getGrabacionesSlider(type,param){
+        let grabs;
+
+        if(type==0){details.inicio=param;}
+        if(type==1){details.fin=param;}
+        if(type==2){
+            grabs = param;
+        }else{
+            grabs = grabaciones;
+        }
+
+        let size = details.fin - details.inicio;
+        if(size<=0){setSliderMessage("Para generar la línea el fin debe ser mayor al inicio"); setGrabSlider([]); return;}
+        if(size>14400){setSliderMessage("No se puede generar una línea de un rango mayor a 4 horas"); setGrabSlider([]); return;}
+        setSliderMessage("");
+
+        let grabacionesInRange = [];
+
+        for(let i=0; i<grabs.length; i++){
+            if((grabs[i].inicio<details.inicio && grabs[i].fin<=details.inicio) || (grabs[i].inicio>=details.fin && grabs[i].fin>details.fin)){
+
+            }else{
+                let grabInicio = grabs[i].inicio;
+                let grabFin = grabs[i].fin;
+                if(grabInicio < details.inicio){grabInicio=details.inicio;}
+                if(grabFin > details.fin){grabFin=details.fin;}
+
+                let temp = {inicio:grabInicio-details.inicio, fin:grabFin-details.inicio};
+                grabacionesInRange.push(temp);
+            }
+        }
+
+        let sliders = [];
+
+        if(grabacionesInRange.length==0){
+            sliders.push({p:1,type:false,ti:details.fin});
+        }
+
+        let x=0;
+        for(let i=0; i<grabacionesInRange.length; i++){
+            let percentage = ((grabacionesInRange[i].inicio-x)/size);
+            let t1 = Number(details.inicio) + Number(grabacionesInRange[i].inicio);
+            sliders.push({p:percentage,type:false,ti:t1});
+
+            let percentageGrab = ((grabacionesInRange[i].fin-grabacionesInRange[i].inicio)/size);
+            let t2 = Number(details.inicio) + Number(grabacionesInRange[i].fin);
+            sliders.push({p:percentageGrab,type:true,ti:t2});
+            x=grabacionesInRange[i].fin;
+        }
+
+        if(x!=size && grabacionesInRange.length!=0){
+            let percentage = ((size-x)/size);
+            sliders.push({p:percentage,type:false,ti:details.fin});
+        }
+
+        setGrabSlider(sliders);
     }
 
     const [error,setError] = useState("");
@@ -173,6 +276,44 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             }
         }
         setLoadingAdd(false);
+    }
+
+
+    const [sliderMessage, setSliderMessage] = React.useState("");
+
+    function epochToDateSlider(epoch){
+        var d = epochToDate(epoch);
+        var seconds = d.getSeconds();
+        var seconds = d.getSeconds(), minutes = d.getMinutes(), hours = d.getHours();
+        if(seconds<10){seconds="0"+seconds;} 
+        if(minutes<10){minutes="0"+minutes;}
+        if(hours<10){hours="0"+hours;}
+
+        var out = hours+":"+minutes+":"+seconds;
+        return out;
+    }
+
+    function GetSlider(props) {
+        const t = props.type;
+        const w = props.width;
+
+        if (t) {
+          return <SliderTrue
+                    value={100}
+                    disabled
+                    sx={{width:w}}
+                    valueLabelDisplay="on"
+                    valueLabelFormat={epochToDateSlider(props.time)}
+                />;
+        }
+
+        return <SliderFalse
+                    value={100}
+                    sx={{width:w}}
+                    disabled
+                    valueLabelDisplay={props.last ? "off" : "on"}
+                    valueLabelFormat={epochToDateSlider(props.time)}
+                />;
     }
 
     return(
@@ -243,6 +384,17 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                     <CloseIcon sx={{color:'red'}}/>
                 </IconButton>
             </DialogActions>
+
+            <Box display="flex" justifyContent="center" alignItems="center">
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{my:2, width:'80%'}}>
+            {grabSlider.map((g) => (
+                <GetSlider type={g.type} width={g.p} time={g.ti} last={g.ti == details.fin}/>
+            ))}
+            {(sliderMessage!="") ? (
+                <Chip icon={<WarningIcon style={{color:'orange'}}/>} sx={{borderColor:'orange'}} variant="outlined" label={sliderMessage}/>
+            ) : ""}
+            </Box>
+            </Box>
 
             {(error!="") ? (
             <Box display="flex" justifyContent="center" alignItems="center" sx={{mb:2}}>
