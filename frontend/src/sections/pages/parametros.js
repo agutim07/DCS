@@ -59,7 +59,7 @@ export default function Parametros(){
                 <ToggleButton sx={{color:"#ED7D31"}} value="Configuración">Configuración</ToggleButton>
                 <ToggleButton sx={{color:"#ED7D31"}} value="Canales">Canales</ToggleButton>
             </ToggleButtonGroup>
-            <Box sx={{ width: '90%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
+            <Box sx={{ width: '90%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid'}}>
                 <Routes>
                     <Route path="/config" element={<Configuracion/>} />
                     <Route path="/canales" element={<Canales/>} />
