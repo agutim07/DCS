@@ -70,6 +70,7 @@ public class Server{
         server.createContext("/reproducciones", new StatusHandler());
         server.createContext("/reproduccionesRaw", new StatusRawHandler());
         server.createContext("/checkinstall", new CheckHandler());
+        server.createContext("/getconfig", new ConfigHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -809,6 +810,28 @@ public class Server{
                 }
             }else{
                 response.append("-");
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    //URL -> OBTENER PARAMETROS DE CONFIGURACION
+    static class ConfigHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                ArrayList<String> config = DB.getConfig();
+                response.append(config);
             }
 
             Server.writeResponse(httpExchange, response.toString(),code);
