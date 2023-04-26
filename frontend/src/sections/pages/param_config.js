@@ -11,6 +11,8 @@ import Snackbar from '@mui/material/Snackbar';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -35,7 +37,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 export default function Configuracion(){
 
-    const [details,setDetails] = useState({});
+    const [details,setDetails] = useState({newpack:0, maxpacks:0, interface:"", checktime:0, maxMBs:0});
     const [config,setConfig] = useState({});
     const [loading,setLoading] = useState(true);
     const [error, setError] = React.useState("false");
@@ -159,6 +161,10 @@ export default function Configuracion(){
                 setSnackMsg("Los parámetros se han actualizado con éxito");
                 setSnackState("success");
                 setOpenSnack(true);
+                if(str.includes("checktime")){
+                    setDialogMode(0);
+                    setOpenDialog(true);
+                }
             }else{
                 setError("Error al actualizar: "+response.data);
             }
@@ -170,6 +176,13 @@ export default function Configuracion(){
         getConfig();
         setLoading(false);
     }
+
+    const [openDialog, setOpenDialog] = React.useState(false);
+    const [dialogMode, setDialogMode] = useState(0);
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
     
     return(
         <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
@@ -293,6 +306,21 @@ export default function Configuracion(){
             </Grid>
             </Grid>
             ) : ""}
+
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <DialogContent>
+                    <Alert variant="outlined" severity="info">
+                        {(dialogMode==0) ? (
+                            <strong>Se han actualizado los segundos de comprobación de espacio en la base de datos, pero el cambio real no se efectuará hasta reiniciar el servidor backend</strong>
+                        ) : (
+                            <strong>Se ha actualizado la clave de acceso en la base de datos, pero el cambio real no se efectuará hasta reiniciar el servidor backend</strong>
+                        )}
+                    </Alert>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} sx={{color:'blue'}}>Ok</Button>
+                </DialogActions>
+            </Dialog>
 
             <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleCloseSnack}>
                 <Alert onClose={handleCloseSnack} severity={snackState}>
