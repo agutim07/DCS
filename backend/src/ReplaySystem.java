@@ -25,6 +25,10 @@ public class ReplaySystem {
         ReplaySystem.reproducciones = new ArrayList<>();
     }
 
+    public void changeInterface(String in){
+        netinterface = in;
+    }
+
     //INICIO DE REPRODUCCION
     public String startReplay(int ch, long inicio, long fin) throws InterruptedException{
         String replayPackets = "";

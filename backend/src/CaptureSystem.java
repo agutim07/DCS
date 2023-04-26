@@ -447,6 +447,24 @@ public class CaptureSystem {
         log.addConfig("Parámetros de configuración obtenidos");
     }
 
+    public static void updateConfiguration(int index, String value){
+        switch(index){
+            case 0:
+                netinterface=value; break;
+            case 1:
+                timeForNewPack=Integer.valueOf(value); break;
+            case 2:
+                maxPackets=Integer.valueOf(value); break;
+            case 3:
+                secondsToDelete=Integer.valueOf(value); break;
+            case 4:
+                maxMBs=Integer.valueOf(value); break;
+            default:
+                break;
+        }
+
+    }
+
     //OBTENER ESPACIO OCUPADO EN LA CARPETA DE CAPTURAS
     private static long getFolderMB(File folder) {
         //recorremos archivo a archivo sumando su tamaño al tamaño total

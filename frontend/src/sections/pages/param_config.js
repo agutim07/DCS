@@ -39,7 +39,8 @@ export default function Configuracion(){
     const [config,setConfig] = useState({});
     const [loading,setLoading] = useState(true);
     const [error, setError] = React.useState("false");
-    const [changeError, setChangeError] = React.useState("false");
+    const [snackMsg, setSnackMsg] = React.useState("false");
+    const [snackState, setSnackState] = React.useState("error");
     const [openSnack, setOpenSnack] = useState(false);
 
     const handleCloseSnack = (event, reason) => {
@@ -50,31 +51,31 @@ export default function Configuracion(){
         setOpenSnack(false);
     };
 
-    useEffect(() => {
-        async function getConfig() {
-            try {
-                const response = await axios.get(`${backend}/getconfig`);
-                
-                var configuration = response.data.replace("[", "");
-                configuration = configuration.replace("]", "");
-                let configArray = configuration.split(", ");
+    async function getConfig() {
+        try {
+            const response = await axios.get(`${backend}/getconfig`);
+            
+            var configuration = response.data.replace("[", "");
+            configuration = configuration.replace("]", "");
+            let configArray = configuration.split(", ");
 
-                if(configArray.length!=7){
-                    setError("No se han podido obtener los parámetros del backend");
-                }else{
-                    let iter = {newpack:parseInt(configArray[0]), maxpacks:parseInt(configArray[1]), interface:configArray[2], 
-                        checktime:parseInt(configArray[3]), maxMBs:parseInt(configArray[4]), key:configArray[6]};
-
-                    setDetails(iter);
-                    setConfig(iter);
-                }
-                
-            } catch(e) {
+            if(configArray.length!=7){
                 setError("No se han podido obtener los parámetros del backend");
-                console.log(e);
-            } 
-        }
+            }else{
+                let iter = {newpack:parseInt(configArray[0]), maxpacks:parseInt(configArray[1]), interface:configArray[2], 
+                    checktime:parseInt(configArray[3]), maxMBs:parseInt(configArray[4]), key:configArray[6]};
 
+                setDetails(iter);
+                setConfig(iter);
+            }
+            
+        } catch(e) {
+            setError("No se han podido obtener los parámetros del backend");
+            console.log(e);
+        } 
+    }
+
+    useEffect(() => {
         getConfig();
         setLoading(false);
     }, []);
@@ -88,18 +89,92 @@ export default function Configuracion(){
     }
 
     function modify(){
+        let str = "";
+
         if(details.interface!=config.interface){
             if(details.interface=="" || details.interface.length>15 || details.interface.includes(" ")){
-                setChangeError("Nombre de interfaz no válido");
+                setSnackMsg("Nombre de interfaz no válido");
+                setSnackState("error");
                 setOpenSnack(true);
+                return;
+            }else{
+                str+="interface="+details.interface+"&";
             }
         }
+
+        if(details.newpack!=config.newpack){
+            if(details.newpack%1 != 0 || details.newpack<=0){
+                console.log()
+                setSnackMsg("El tiempo de creación de un nuevo paquete no debe tener decimales y debe ser mayor a 0");
+                setSnackState("error");
+                setOpenSnack(true);
+                return;
+            }else{
+                str+="newpack="+details.newpack+"&";
+            }
+        }
+
+        if(details.maxpacks!=config.maxpacks){
+            if(details.maxpacks%1 != 0 || details.maxpacks<=0){
+                setSnackMsg("Los max. paquetes por grabación no deben tener decimales y deben ser mayor a 0");
+                setSnackState("error");
+                setOpenSnack(true);
+                return;
+            }else{
+                str+="maxpacks="+details.maxpacks+"&";
+            }
+        }
+
+        if(details.checktime!=config.checktime){
+            if(details.checktime%1 != 0 || details.checktime<=0){
+                setSnackMsg("Los segundos de comprobación no deben tener decimales y deben ser mayor a 0");
+                setSnackState("error");
+                setOpenSnack(true);
+                return;
+            }else{
+                str+="checktime="+details.checktime+"&";
+            }
+        }
+
+        if(details.maxMBs!=config.maxMBs){
+            if(details.maxMBs%1 != 0 || details.maxMBs<=0){
+                setSnackMsg("El tamaño máximo de capturas no debe tener decimales y debe ser mayor a 0");
+                setSnackState("error");
+                setOpenSnack(true);
+                return;
+            }else{
+                str+="maxMBs="+details.maxMBs+"&";
+            }
+        }
+
+        update(str);
+    }
+
+    async function update(str){
+        setLoading(true);
+
+        try {
+            const response = await axios.get(`${backend}/updateconfig?${str}`);
+            if(response.data=="OK"){
+                setSnackMsg("Los parámetros se han actualizado con éxito");
+                setSnackState("success");
+                setOpenSnack(true);
+            }else{
+                setError("Error al actualizar: "+response.data);
+            }
+        } catch(e) {
+            setError("Error al actualizar: error de conexión con el backend");
+            console.log(e);
+        }
+
+        getConfig();
+        setLoading(false);
     }
     
     return(
         <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
             <Grid item xs={12}>
-                <Button startIcon={<DoneIcon />} disabled={checkChange()} onClick={() => modify()} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }, '&:disabled': {backgroundColor: '#91E291', color:'#000000'}}}>
+                <Button startIcon={<DoneIcon />} disabled={checkChange() || loading} onClick={() => modify()} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }, '&:disabled': {backgroundColor: '#91E291', color:'#000000'}}}>
                     Aplicar cambios
                 </Button>
             </Grid>
@@ -220,8 +295,8 @@ export default function Configuracion(){
             ) : ""}
 
             <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleCloseSnack}>
-                <Alert onClose={handleCloseSnack} severity="error">
-                    <strong>{changeError}</strong>
+                <Alert onClose={handleCloseSnack} severity={snackState}>
+                    <strong>{snackMsg}</strong>
                 </Alert>
             </Snackbar>
         </Grid>

@@ -71,6 +71,7 @@ public class Server{
         server.createContext("/reproduccionesRaw", new StatusRawHandler());
         server.createContext("/checkinstall", new CheckHandler());
         server.createContext("/getconfig", new ConfigHandler());
+        server.createContext("/updateconfig", new UpdateConfigHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -838,6 +839,40 @@ public class Server{
         }
     }
 
+    //URL -> ACTUALIZAR PARAMETROS DE CONFIGURACION
+    static class UpdateConfigHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                ArrayList<String> params = getConfigFromSyntax(parameters);
+                String result = DB.updateConfig(params);
+                if(result=="OK"){
+                    for(int i=0; i<5; i++){
+                        if(params.get(i)!="0"){
+                            dataCaptureSystem.updateConfiguration(i, params.get(i));
+                            if(i==0){
+                                dataReplaySystem.changeInterface(params.get(0));
+                            }
+                        }
+                    }
+                }
+                response.append(result);
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
 
     //este método devuelve una cadena y un codigo HTTP al usuario que ha realizado una peticion HTTP
     public static void writeResponse(HttpExchange httpExchange, String response, int code) throws IOException {
@@ -1051,6 +1086,37 @@ public class Server{
 
             return out;
         }
+    }
+
+    public static ArrayList<String> getConfigFromSyntax(String query){
+        ArrayList<String> config = new ArrayList<>();
+
+        for(int i=0; i<5; i++){
+            int inIndx = -1;
+            int paramLen = -1;
+
+            switch(i){
+                case 0: inIndx = query.indexOf("interface="); paramLen=10; break;
+                case 1: inIndx = query.indexOf("newpack="); paramLen=8; break;
+                case 2: inIndx = query.indexOf("maxpacks="); paramLen=9; break;
+                case 3: inIndx = query.indexOf("checktime="); paramLen=10; break;
+                case 4: inIndx = query.indexOf("maxMBs="); paramLen=7; break;
+                default: break;
+            }
+
+            if(inIndx==-1){
+                config.add("0");
+            }else{
+                int x = inIndx+paramLen;
+                int y = x;
+                while(y!=(query.length()) && query.charAt(y)!='&'){
+                    y++;
+                }
+                config.add(query.substring(x,y));
+            }
+        }
+
+        return config;
     }
 
     //se ejecuta si se apaga el programa: simplemente imprime por pantalla y añade al log el cierre inmediato

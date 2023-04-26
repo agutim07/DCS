@@ -81,6 +81,51 @@ public class DataBase {
         return config;
     }
 
+    //ACTUALIZAMOS LOS PARAMETROS DE CONFIGURACIÓN
+    public String updateConfig(ArrayList<String> params){
+        String update = "UPDATE config SET ";
+        boolean first = true;
+        for(int i=0; i<params.size(); i++){
+            if(params.get(i)!="0"){
+                String add = "";
+                
+                switch(i){
+                    case 0: add="interface"; break;
+                    case 1: add="timeForNewPack"; break;
+                    case 2: add="maxPackets"; break;
+                    case 3: add="secondsToDelete"; break;
+                    case 4: add="maxMBs"; break;
+                    default: break;
+                }
+
+                if(!first){update+=",";}else{ first=false;}
+
+                if(i!=0){
+                    update+=add+"="+params.get(i)+" ";
+                }else{
+                    update+=add+"='"+params.get(i)+"' ";
+                }
+                
+            }
+        }
+
+        PreparedStatement pstmt2;
+
+        try {
+            pstmt2 = getConn().prepareStatement(update);
+            pstmt2.executeUpdate();
+            log.addInfo("BD: Se han actualizado los parámetros de configuración");
+        }catch (SQLException e) {
+            log.addWarning("BD: No se han podido actualizar los parámetros de configuración {"+e+"}");
+            return e.toString();
+        }catch (Exception e) {
+            log.addWarning("BD: No se ha podido actualizar los parámetros de configuración {"+e+"}");
+            return e.toString();
+        }
+
+        return "OK";
+    }
+
     //OBTENEMOS LOS CANALES DE LA BASE DE DATOS
     public ArrayList<String> getChannels(){
         ArrayList<String> canales = new ArrayList<>();
