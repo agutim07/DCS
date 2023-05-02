@@ -30,9 +30,14 @@ public class ReplaySystem {
     }
 
     //INICIO DE REPRODUCCION
-    public String startReplay(int ch, long inicio, long fin) throws InterruptedException{
+    public String startReplay(int ch, long inicio, long fin) throws InterruptedException, IOException{
         String replayPackets = "";
         int sleep = 0;
+
+        if(!checkInterface(netinterface)){
+            log.addWarning("START REPLAY: Error, la interfaz establecida no existe en el equipo");
+            return("La interfaz establecida no existe en el equipo");
+        }
 
         //buscamos la 1ª opcion de reproduccion -> el rango a reinyectar esta todo dentro de una grabacion
         ArrayList<String> packetsOP1 = DB.getData(ch, inicio, fin,0);
@@ -669,6 +674,16 @@ public class ReplaySystem {
         if(lines1.length<2){return 1;}  //tcpreplay no instalado
         if(lines2.length<2){return 2;}  //wireshark no instalado
         return 3;   //ambas instaladas
+    }
+
+    //chequeamos si la interfaz existe
+    public static boolean checkInterface(String in) throws IOException {
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("ip a show "+in+" up").getInputStream()).useDelimiter("\\A");
+        String output1 = s1.hasNext() ? s1.next() : "";
+        String[] lines1 = output1.split("\r\n|\r|\n");
+
+        if(lines1.length<2){return false;} 
+        return true; 
     }
 
 
