@@ -23,7 +23,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
 import axios from "axios";
-import {backend} from '../../../variables/global'
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -151,7 +150,7 @@ const RepCard = ({r, update, returnMessage}) => {
         setLoading(true);
         let state = ""; let msg = "";
         try {
-            const response = await axios.get(`${backend}/stopreplay?reproduccion=${r.id}`);
+            const response = await axios.get(`/stopreplay?reproduccion=${r.id}`);
             if(response.data==okeyMsg){
                 state="success"; msg="Reproducción "+r.id+" eliminada correctamente";
             }else{
@@ -190,7 +189,7 @@ const RepCard = ({r, update, returnMessage}) => {
         setLoadingModify(true);
         let state = ""; let msg = "";
         try {
-            const response = await axios.get(`${backend}/modifyreplay?${request}`);
+            const response = await axios.get(`/modifyreplay?${request}`);
             console.log(response.data);
             if(response.data==okeyMsgs[0] || response.data==okeyMsgs[1] || response.data==okeyMsgs[2]){
                 state="success"; msg="Reproducción "+r.id+" modificada correctamente";

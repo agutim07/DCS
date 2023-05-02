@@ -17,7 +17,7 @@ import Avatar from '@mui/material/Avatar';
 import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 
-import {backend, keyExpiration} from './variables/global'
+import {keyExpiration} from './variables/global'
 import axios from "axios";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -85,7 +85,7 @@ export default function Login({updateApp}) {
     }else{
         setLoading(true);
         try {
-          const response = await axios.get(`${backend}/login?key=${details.key}`);
+          const response = await axios.get(`/login?key=${details.key}`);
           if(response.data==okeyMsg){
             setLoginInfo();
             updateApp();

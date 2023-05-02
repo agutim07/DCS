@@ -29,7 +29,6 @@ import RepCard from './sub/repcard'
 import RepAdd from './sub/repadd'
 
 import axios from "axios";
-import {backend} from '../../variables/global'
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -55,7 +54,7 @@ export default function Configuracion(){
 
     async function getConfig() {
         try {
-            const response = await axios.get(`${backend}/getconfig`);
+            const response = await axios.get(`/getconfig`);
             
             var configuration = response.data.replace("[", "");
             configuration = configuration.replace("]", "");
@@ -156,7 +155,7 @@ export default function Configuracion(){
         setLoading(true);
 
         try {
-            const response = await axios.get(`${backend}/updateconfig?${str}`);
+            const response = await axios.get(`/updateconfig?${str}`);
             if(response.data=="OK"){
                 setSnackMsg("Los parámetros se han actualizado con éxito");
                 setSnackState("success");

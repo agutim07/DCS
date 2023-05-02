@@ -31,7 +31,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
 import axios from "axios";
-import {backend} from '../../../variables/global'
 import Modal from '@mui/material/Modal';
 
 import dayjs from 'dayjs';
@@ -164,7 +163,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
     async function getInfo(ch) {
         setLoadingInfo(true);
         try {
-            const response = await axios.get(`${backend}/canalesData?canal=${ch}`);
+            const response = await axios.get(`/canalesData?canal=${ch}`);
             if(response.data=="empty"){
                 setInfo("No hay ninguna grabación disponible en este canal");
                 getGrabacionesSlider(2,[]);
@@ -261,7 +260,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             setError("no se puede iniciar una reproducción ya que no hay grabaciones en el canal");
         }else{
             try {
-                const response = await axios.get(`${backend}/replayRaw?canal=${details.canal}&inicio=${details.inicio}&fin=${details.fin}`);
+                const response = await axios.get(`/replayRaw?canal=${details.canal}&inicio=${details.inicio}&fin=${details.fin}`);
                 if(response.data.substring(0,21)=="Reproduccion iniciada"){
                     let state="success", msg=response.data;
                     update();

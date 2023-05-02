@@ -18,8 +18,6 @@ import MuiAlert from '@mui/material/Alert';
 import axios from "axios";
 import { useLocation , useNavigate } from 'react-router-dom'
 
-import {backend} from '../variables/global'
-
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -48,7 +46,7 @@ const Header = ({logout}) => {
         handleClickOpen();
 
         try {
-            await axios.get(`${backend}/logout`);
+            await axios.get('/logout');
             handleClose();
             localStorage.removeItem('token');
             logout();

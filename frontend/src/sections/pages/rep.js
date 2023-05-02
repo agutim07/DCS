@@ -17,7 +17,6 @@ import RepCard from './sub/repcard'
 import RepAdd from './sub/repadd'
 
 import axios from "axios";
-import {backend} from '../../variables/global'
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -32,7 +31,7 @@ export default function Rep(){
         async function checkInstallations() {
             setLoading(true);
             try {
-                const response = await axios.get(`${backend}/checkinstall?1`);
+                const response = await axios.get(`/checkinstall?1`);
                 if(response.data!="OK"){
                     setError(response.data);
                 }
@@ -44,7 +43,7 @@ export default function Rep(){
 
         async function checkChannels() {
             try {
-                const response = await axios.get(`${backend}/canalesRaw`);
+                const response = await axios.get(`/canalesRaw`);
                 if(response.data=="error"){
                     setError("No hay canales existentes en la base de datos");
                 }else{
@@ -77,7 +76,7 @@ export default function Rep(){
     async function update() {
         setLoading(true);
         try {
-            const response = await axios.get(`${backend}/reproduccionesRaw`);
+            const response = await axios.get(`/reproduccionesRaw`);
             if(response.data=="empty"){
                 setEmpty(true);
                 setReps([]);
