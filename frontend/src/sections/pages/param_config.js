@@ -28,14 +28,27 @@ import CloseIcon from '@mui/icons-material/Close';
 import RepCard from './sub/repcard'
 import RepAdd from './sub/repadd'
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
 import axios from "axios";
+
+import { alpha } from "@mui/material";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function Configuracion(){
+const darkTheme = createTheme({
+    typography: {
+        fontFamily: 'Copperplate Gothic Light',
+    },
+    palette: {
+        mode: 'dark',
+    },
+});
 
+export default function Configuracion(){
     const [details,setDetails] = useState({newpack:0, maxpacks:0, interface:"", checktime:0, maxMBs:0});
     const [config,setConfig] = useState({});
     const [loading,setLoading] = useState(true);
@@ -157,11 +170,14 @@ export default function Configuracion(){
         try {
             const response = await axios.get(`/updateconfig?${str}`);
             if(response.data=="OK"){
-                setSnackMsg("Los parámetros se han actualizado con éxito");
+                let message = "Los parámetros se han actualizado con éxito";
+                if(str.includes("maxpacks") || str.includes("newpack")){
+                    message+=": si hay grabaciones activas reinicie para que surgan efecto";
+                }
+                setSnackMsg(message);
                 setSnackState("success");
                 setOpenSnack(true);
                 if(str.includes("checktime")){
-                    setDialogMode(0);
                     setOpenDialog(true);
                 }
             }else{
@@ -177,11 +193,28 @@ export default function Configuracion(){
     }
 
     const [openDialog, setOpenDialog] = React.useState(false);
-    const [dialogMode, setDialogMode] = useState(0);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    const [openDialogKey, setOpenDialogKey] = React.useState(false);
+    const handleOpenDialogKey = () => {setOpenDialogKey(true);};
+    const handleCloseDialogKey = () => {setOpenDialogKey(false);};
+
+    const [keys,setKeys] = useState({old:"", new1:"", new2:""});
+    const [loadingChange, setLoadingChange] = React.useState(false);
+    const [errorKey, setErrorKey] = React.useState("");
+
+    function changeKey(){
+        if(keys.old=="" || keys.new1=="" || keys.new2==""){
+            setErrorKey("ningún campo puede estar en blanco");
+        }
+
+        if(keys.new1!=keys.new2){
+            setErrorKey("la nueva clave debe coincidir en ambos campos");
+        }
+    }
     
     return(
         <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
@@ -296,7 +329,7 @@ export default function Configuracion(){
                             </Typography>
                         </Grid>
                         <Grid item xs={4}>
-                            <Button startIcon={<KeyIcon />} variant="contained" sx={{ bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
+                            <Button startIcon={<KeyIcon />} onClick={() => handleOpenDialogKey()} variant="contained" sx={{ bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
                                 Modificar
                             </Button>
                         </Grid>
@@ -309,17 +342,70 @@ export default function Configuracion(){
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogContent>
                     <Alert variant="outlined" severity="info">
-                        {(dialogMode==0) ? (
-                            <strong>Se han actualizado los segundos de comprobación de espacio en la base de datos, pero el cambio real no se efectuará hasta reiniciar el servidor backend</strong>
-                        ) : (
-                            <strong>Se ha actualizado la clave de acceso en la base de datos, pero el cambio real no se efectuará hasta reiniciar el servidor backend</strong>
-                        )}
+                        <strong>Se han actualizado los segundos de comprobación de espacio en la base de datos, pero el cambio real no se efectuará hasta reiniciar el servidor backend</strong>
                     </Alert>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} sx={{color:'blue'}}>Ok</Button>
                 </DialogActions>
             </Dialog>
+
+            <ThemeProvider theme={darkTheme}>
+            <Dialog open={openDialogKey} onClose={handleCloseDialogKey}>
+                <DialogContent>
+                    <Box sx={{borderRadius: 2, m:3, textAlign: 'center'}}>
+                        <Typography component="h1" variant="h5">
+                        Cambio de clave
+                        </Typography>
+                        <Divider sx={{my:1,bgcolor:'white'}}/>
+                        <Grid container spacing={1} direction="row" alignItems="center" justifyContent="center">
+                            <Grid item xs={4}>
+                                <Typography sx={{fontSize:12, mb:2}}>
+                                Clave antigua
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <TextField variant="filled" sx={{mb:2, "& .MuiFilledInput-root": {background: alpha("#EEA97C",0.5), '&.Mui-focused': {background: "#EEA97C"}}}} autoFocusmargin="dense" id="old" fullWidth value={keys.old} onChange={e => setKeys({ ...keys, old: e.target.value })}/>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Typography sx={{fontSize:12}}>
+                                Nueva clave
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <TextField variant="filled" sx={{"& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new1" fullWidth value={keys.new1} onChange={e => setKeys({ ...keys, new1: e.target.value })}/>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Typography sx={{fontSize:12}}>
+                                Repite nueva clave
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <TextField variant="filled" sx={{"& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new2" fullWidth value={keys.new2} onChange={e => setKeys({ ...keys, new2: e.target.value })}/>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Box sx={{position: 'relative' }}>
+                    <Button onClick={changeKey} disabled={loadingChange} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ color:"white", bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        Cambiar
+                    </Button>
+                    {loadingChange && (
+                    <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                    )}
+                </Box>
+                <IconButton onClick={handleCloseDialogKey}>
+                    <CloseIcon sx={{color:'red'}}/>
+                </IconButton>
+            </DialogActions>
+            {(errorKey!="") ? (
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{mb:2}}>
+                <Alert sx={{color:'red'}} variant="outlined" severity="error" onClose={() => {setErrorKey("")}}><b>Error: </b>{errorKey}</Alert>
+            </Box>
+            ) : ""}
+            </Dialog>
+            </ThemeProvider>
 
             <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleCloseSnack}>
                 <Alert onClose={handleCloseSnack} severity={snackState}>
