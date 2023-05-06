@@ -227,7 +227,7 @@ public class Server{
                 code=401;
             }else{
                 //este array incluirá en cada posicion informacion sobre un canal concreto
-                ArrayList<String> canales = dataCaptureSystem.getChannelsRaw();
+                ArrayList<String> canales = dataCaptureSystem.getChannelsRaw(false);
                 if(canales.size()==0){
                     response.append("error");
                 }else{

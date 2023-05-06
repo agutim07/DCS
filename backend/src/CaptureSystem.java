@@ -337,12 +337,24 @@ public class CaptureSystem {
         
     }
 
-    public ArrayList<String> getChannelsRaw(){
+    public ArrayList<String> getChannelsRaw(Boolean extra){
         ArrayList<String> out = new ArrayList<>();
 
         for(int i=0; i<canales.size(); i++){
             out.add(String.valueOf(canales.get(i).id));
             out.add(canales.get(i).filtro);
+            if(extra){
+                if(grabaciones.get(i)!=null && processFinished(grabaciones.get(i))!=-1){
+                    stopRecording(i+1);
+                }
+                
+                if(grabaciones.get(i)!=null){
+                    long timepograbacion = (System.currentTimeMillis()/1000l) - grabacionStart.get(i);
+                    out.add(String.valueOf(timepograbacion));
+                }else{
+                    out.add("off");
+                }
+            }
         }
 
         return out;
