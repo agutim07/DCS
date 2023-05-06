@@ -126,6 +126,26 @@ public class DataBase {
         return "OK";
     }
 
+    //ACTUALIZAMOS LA CLAVE
+    public String updateKey(String param){
+        String update = "UPDATE config SET key = '"+param+"' ";
+        PreparedStatement pstmt2;
+
+        try {
+            pstmt2 = getConn().prepareStatement(update);
+            pstmt2.executeUpdate();
+            log.addInfo("BD: Se ha actualizado la clave de inicio de sesión");
+        }catch (SQLException e) {
+            log.addWarning("BD: No se han podido actualizar la clave de inicio de sesión {"+e+"}");
+            return e.toString();
+        }catch (Exception e) {
+            log.addWarning("BD: No se ha podido actualizar la clave de inicio de sesión {"+e+"}");
+            return e.toString();
+        }
+
+        return "OK";
+    }
+
     //OBTENEMOS LOS CANALES DE LA BASE DE DATOS
     public ArrayList<String> getChannels(){
         ArrayList<String> canales = new ArrayList<>();

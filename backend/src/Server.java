@@ -72,6 +72,7 @@ public class Server{
         server.createContext("/checkinstall", new CheckHandler());
         server.createContext("/getconfig", new ConfigHandler());
         server.createContext("/updateconfig", new UpdateConfigHandler());
+        server.createContext("/changekey", new UpdateKeyHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -873,6 +874,38 @@ public class Server{
         }
     }
 
+    //URL -> ACTUALIZAR CLAVE
+    static class UpdateKeyHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                ArrayList<String> params = getKeysFromSyntax(parameters);
+
+                if(params.get(0).equals(key)){
+                    String result = DB.updateKey(params.get(1));
+                    if(result=="OK"){
+                        dataCaptureSystem.updateConfiguration(5, params.get(1));
+                        key = params.get(1);
+                    }
+                    response.append(result);
+                }else{
+                    response.append("Error al modificar: la clave antigua no es correcta");
+                }
+            }
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
 
     //este método devuelve una cadena y un codigo HTTP al usuario que ha realizado una peticion HTTP
     public static void writeResponse(HttpExchange httpExchange, String response, int code) throws IOException {
@@ -1117,6 +1150,34 @@ public class Server{
         }
 
         return config;
+    }
+
+    public static ArrayList<String> getKeysFromSyntax(String query){
+        ArrayList<String> keys = new ArrayList<>();
+
+        for(int i=0; i<2; i++){
+            int inIndx = -1;
+            int paramLen = 4;
+
+            switch(i){
+                case 0: inIndx = query.indexOf("old="); break;
+                case 1: inIndx = query.indexOf("new="); break;
+                default: break;
+            }
+
+            if(inIndx==-1){
+                keys.add("0");
+            }else{
+                int x = inIndx+paramLen;
+                int y = x;
+                while(y!=(query.length()) && query.charAt(y)!='&'){
+                    y++;
+                }
+                keys.add(query.substring(x,y));
+            }
+        }
+
+        return keys;
     }
 
     //se ejecuta si se apaga el programa: simplemente imprime por pantalla y añade al log el cierre inmediato

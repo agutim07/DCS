@@ -459,6 +459,8 @@ public class CaptureSystem {
                 secondsToDelete=Integer.valueOf(value); break;
             case 4:
                 maxMBs=Integer.valueOf(value); break;
+            case 5:
+                key=value; break;
             default:
                 break;
         }

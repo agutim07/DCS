@@ -200,21 +200,47 @@ export default function Configuracion(){
 
     const [openDialogKey, setOpenDialogKey] = React.useState(false);
     const handleOpenDialogKey = () => {setOpenDialogKey(true);};
-    const handleCloseDialogKey = () => {setOpenDialogKey(false);};
+    const handleCloseDialogKey = () => {setOpenDialogKey(false); setKeys({old:"", new1:"", new2:""}); setErrorKey("");};
 
     const [keys,setKeys] = useState({old:"", new1:"", new2:""});
     const [loadingChange, setLoadingChange] = React.useState(false);
     const [errorKey, setErrorKey] = React.useState("");
 
-    function changeKey(){
+    async function changeKey(){
         if(keys.old=="" || keys.new1=="" || keys.new2==""){
             setErrorKey("ningún campo puede estar en blanco");
+            return;
         }
 
         if(keys.new1!=keys.new2){
             setErrorKey("la nueva clave debe coincidir en ambos campos");
+            return;
         }
+
+        setLoadingChange(true);
+        try {
+            const response = await axios.get(`/changekey?old=${keys.old}&new=${keys.new1}`);
+            if(response.data=="OK"){
+                let message = "La clave de inicio de sesión se ha actualizado con éxito";
+                setSnackMsg(message);
+                setSnackState("success");
+                setOpenSnack(true);
+            }else if(response.data=="Error al modificar: la clave antigua no es correcta"){
+                setSnackMsg(response.data);
+                setSnackState("error");
+                setOpenSnack(true);
+            }else{
+                setError("Error al modificar: "+response.data);
+            }
+        } catch(e) {
+            setError("Error al modificar: error de conexión con el backend");
+            console.log(e);
+        }
+        setLoadingChange(false);
+        handleCloseDialogKey();
     }
+
+    const preventPaste = (e) => {e.preventDefault();};
     
     return(
         <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
@@ -365,7 +391,7 @@ export default function Configuracion(){
                                 </Typography>
                             </Grid>
                             <Grid item xs={8}>
-                                <TextField variant="filled" sx={{mb:2, "& .MuiFilledInput-root": {background: alpha("#EEA97C",0.5), '&.Mui-focused': {background: "#EEA97C"}}}} autoFocusmargin="dense" id="old" fullWidth value={keys.old} onChange={e => setKeys({ ...keys, old: e.target.value })}/>
+                                <TextField variant="filled" sx={{mb:2, "& .MuiFilledInput-root:hover": {background: "#EEA97C"}, "& .MuiFilledInput-root": {background: alpha("#EEA97C",0.5), '&.Mui-focused': {background: "#EEA97C"}}}} autoFocusmargin="dense" id="old" fullWidth value={keys.old} onChange={e => setKeys({ ...keys, old: e.target.value })}/>
                             </Grid>
                             <Grid item xs={4}>
                                 <Typography sx={{fontSize:12}}>
@@ -373,7 +399,7 @@ export default function Configuracion(){
                                 </Typography>
                             </Grid>
                             <Grid item xs={8}>
-                                <TextField variant="filled" sx={{"& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new1" fullWidth value={keys.new1} onChange={e => setKeys({ ...keys, new1: e.target.value })}/>
+                                <TextField variant="filled" sx={{"& .MuiFilledInput-root:hover": {background: "#84EE7C"}, "& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new1" fullWidth value={keys.new1} onChange={e => setKeys({ ...keys, new1: e.target.value })}/>
                             </Grid>
                             <Grid item xs={4}>
                                 <Typography sx={{fontSize:12}}>
@@ -381,7 +407,7 @@ export default function Configuracion(){
                                 </Typography>
                             </Grid>
                             <Grid item xs={8}>
-                                <TextField variant="filled" sx={{"& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new2" fullWidth value={keys.new2} onChange={e => setKeys({ ...keys, new2: e.target.value })}/>
+                                <TextField variant="filled" onPaste={preventPaste} sx={{"& .MuiFilledInput-root:hover": {background: "#84EE7C"}, "& .MuiFilledInput-root": {background: alpha("#84EE7C", 0.5), '&.Mui-focused': {background: "#84EE7C"}}}} autoFocusmargin="dense" id="new2" fullWidth value={keys.new2} onChange={e => setKeys({ ...keys, new2: e.target.value })}/>
                             </Grid>
                         </Grid>
                     </Box>
