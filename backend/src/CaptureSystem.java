@@ -107,6 +107,31 @@ public class CaptureSystem {
         }
     }
 
+    public static boolean checkInstallations(int type) throws IOException {
+        if(type==0){
+            Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpdump").getInputStream()).useDelimiter("\\A");
+            String output1 = s1.hasNext() ? s1.next() : "";
+            String[] lines1 = output1.split("\r\n|\r|\n");
+
+            if(lines1.length<2){
+                return false;
+            }else{
+                return true;
+            }
+        }else{
+            Scanner s1 = new Scanner(Runtime.getRuntime().exec("tcpdump").getInputStream()).useDelimiter("\\A");
+            String output1 = s1.hasNext() ? s1.next() : "";
+            String[] lines1 = output1.split("\r\n|\r|\n");
+
+            if(lines1.length<2){
+                return false;
+            }else{
+                return true;
+            }
+        }
+    }
+        
+
     //INICIO DE GRABACIÓN ESPECIAL (EN WINDOWS)
     public static String startRecordingWindows(int ch, String filtros, int pos) {
         //este comando solo crea una pcap, ya que en Windows no se pueden crear nuevas automáticamente
