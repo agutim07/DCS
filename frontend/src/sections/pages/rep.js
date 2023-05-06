@@ -137,9 +137,11 @@ export default function Rep(){
             <Typography component="h1" variant="h4">
             Reproducciones
             </Typography>
+            {(error=="false") ? (
             <IconButton onClick={update}>
                 <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
             </IconButton>
+            ) : ""}
             <Box sx={{ width: '90%', borderRadius: 2, mt:3, p:2, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
                 {(loading) ? (
                     <CircularProgress sx={{color:'#ED7D31'}}/>

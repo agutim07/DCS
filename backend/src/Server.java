@@ -809,12 +809,7 @@ public class Server{
             }else{
                 log.addInfo("Comprobando instalaciones para grabacion...");
                 if(!so.contains("linux")){
-                    Boolean state = dataCaptureSystem.checkInstallations(1);
-                    if(!state){
-                        response.append("Para grabar en Windows: se debe instalar Microolap Tcpdump y añadir tcpdump al PATH");
-                    }else{
-                        response.append("OK");
-                    }
+                    response.append("windows");
                 }else{
                     Boolean state = dataCaptureSystem.checkInstallations(0);
                     if(!state){

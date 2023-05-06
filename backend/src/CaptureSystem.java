@@ -119,15 +119,7 @@ public class CaptureSystem {
                 return true;
             }
         }else{
-            Scanner s1 = new Scanner(Runtime.getRuntime().exec("tcpdump").getInputStream()).useDelimiter("\\A");
-            String output1 = s1.hasNext() ? s1.next() : "";
-            String[] lines1 = output1.split("\r\n|\r|\n");
-
-            if(lines1.length<2){
-                return false;
-            }else{
-                return true;
-            }
+            return false;
         }
     }
         

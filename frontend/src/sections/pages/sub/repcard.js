@@ -190,7 +190,6 @@ const RepCard = ({r, update, returnMessage}) => {
         let state = ""; let msg = "";
         try {
             const response = await axios.get(`/modifyreplay?${request}`);
-            console.log(response.data);
             if(response.data==okeyMsgs[0] || response.data==okeyMsgs[1] || response.data==okeyMsgs[2]){
                 state="success"; msg="Reproducción "+r.id+" modificada correctamente";
             }else{

@@ -292,6 +292,21 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
         return out;
     }
 
+    function secondsToDateLabel(seconds){
+        var inicio = 0;
+
+        if(seconds>=3600){
+            inicio = 11;
+        }else if(seconds>=60){
+            inicio = 14;
+        }else{
+            inicio = 16;
+        }
+
+        var out = new Date(seconds * 1000).toISOString().substring(inicio, 19);
+        return out;
+    }
+
     function GetSlider(props) {
         const t = props.type;
         const w = props.width;
@@ -425,7 +440,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                         <TableHead>
                         <TableRow>
                             <TableCell><b>ID</b></TableCell>
-                            <TableCell align="right"><b>Duración&nbsp;(secs)</b></TableCell>
+                            <TableCell align="right"><b>Duración</b></TableCell>
                             <TableCell align="right"><b>Inicio&nbsp;(epoch)</b></TableCell>
                             <TableCell align="right"><b>Inicio&nbsp;(local)</b></TableCell>
                             <TableCell align="right"><b>Fin&nbsp;(epoch)</b></TableCell>
@@ -441,7 +456,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                             <TableCell component="th" scope="row">
                                 {g.id}
                             </TableCell>
-                            <TableCell align="right">{g.fin-g.inicio}</TableCell>
+                            <TableCell align="right">{secondsToDateLabel(g.fin-g.inicio)}</TableCell>
                             <TableCell align="right">{g.inicio}</TableCell>
                             <TableCell align="right">{epochToDateLabel(g.inicio)}</TableCell>
                             <TableCell align="right">{g.fin}</TableCell>
