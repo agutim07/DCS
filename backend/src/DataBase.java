@@ -479,6 +479,8 @@ public class DataBase {
             if (files[i].isFile() && files[i].getName().length()>=21 && files[i].getName().substring(0,9).equals("cap_canal")) {
                 //para ser una pcap debe ser un archivo (no directorio) y una longuitud de minimo 21 (cap_canal{canal_num}_{epoch_time})
                 String name = files[i].getName();
+                if(name.contains(".pcap")){name = name.replace(".pcap", "");}
+                
                 boolean error = false;
                 int channel = 0;
                 long startTime = 0;
