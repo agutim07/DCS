@@ -18,14 +18,35 @@ import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TrafficIcon from '@mui/icons-material/Traffic';
+
+import Backdrop from '@mui/material/Backdrop';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
 
 import GrabCard from './sub/grabcard'
+
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import {styled} from '@mui/material/styles';
 
 import axios from "axios";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.white,
+      color: 'rgba(0, 0, 0, 0.87)',
+      boxShadow: theme.shadows[1],
+      fontSize: 11,
+    },
+}));
 
 export default function Grab(){
     const [error, setError] = React.useState("false");
@@ -81,6 +102,7 @@ export default function Grab(){
             setError("No se ha podido conectar con el backend");
             console.log(e);
         } 
+        setTraffic(generateTraffic(''));
         setLoading(false);
     }
 
@@ -106,6 +128,47 @@ export default function Grab(){
     const handleClickOpen = () => {setOpen(true);};
     const handleClose = () => {setOpen(false);};
 
+    const [traffic, setTraffic] = React.useState(generateTraffic(''));
+
+    function generateTraffic(tipo){
+        let state = -2;
+        if(tipo=='loading'){state=-1;}
+
+        var traffic = [];
+        for(let i=0; i<grabs.length; i++){
+            traffic.push(state);
+        }
+
+        return traffic;
+    }
+
+    async function getTraffic() {
+        setTraffic(generateTraffic('loading'));
+        try {
+            const response = await axios.get(`/gettraffic`);
+            const arrayChannels = response.data;
+            const traffic = [];
+
+            for(let i=0; i<grabs.length; i++){
+                traffic.push(parseInt(arrayChannels[i]));
+            }
+
+            setTraffic(traffic);
+        } catch(e) {
+            openSnack("Error al intentar obtener el tráfico de los canales", "error");
+            setTraffic(generateTraffic(''));
+            console.log(e);
+        } 
+    }
+
+    function getTrafficCh(id){
+        for(let i=0; i<grabs.length; i++){
+            if(grabs[i].id==id){
+                return traffic[i];
+            }
+        }
+    }
+
     return(
         <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center">
             <Typography component="h1" variant="h4">
@@ -114,11 +177,20 @@ export default function Grab(){
             {(windows) ? (
                 <Chip icon={<InfoIcon sx={{"&&": {color:'white'}}}/>} sx={{mt:1}} style={{backgroundColor:'#E9A272'}} label="Leer: Grabación en Windows" onClick={handleClickOpen}/>
             ) : ""}
-            {(error=="false") ? (
-            <IconButton onClick={update}>
-                <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
-            </IconButton>
-            ) : ""}
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{mt:1}}>
+                <LightTooltip title="Actualizar" placement="left">
+                    <IconButton size="small" sx={{mr:windows ? 0 : 1, backgroundColor:'#ED7D31', '&:hover': {bgcolor: '#E9A272',}}} onClick={update}>
+                        <RefreshIcon sx={{color:'white'}} fontSize="large"/>
+                    </IconButton>
+                </LightTooltip>
+                {(!windows) ? (
+                    <LightTooltip title="Comprobar tráfico" placement="right">
+                        <IconButton size="small" sx={{ml:1, backgroundColor:'#ED7D31', '&:hover': {bgcolor: '#E9A272',}}} onClick={getTraffic}>
+                            <TrafficIcon sx={{color:'white'}} fontSize="large"/>
+                        </IconButton>
+                    </LightTooltip>
+                ) : ""}
+            </Box>
             <Box sx={{ width: '90%', borderRadius: 2, mt:2, p:1, textAlign: 'center', border: '1px solid', bgcolor: 'grey.100', color: 'grey.800', borderColor: 'grey.300' }}>
                 {(loading) ? (
                     <CircularProgress sx={{color:'#ED7D31'}}/>
@@ -127,7 +199,7 @@ export default function Grab(){
                         <Grid container direction="column" spacing={1}>
                         {grabs.map((g) => (
                             <Grid item sx={{borderBottom: `1px solid grey`}}> 
-                                <GrabCard g={g} update={update} returnMessage={openSnack}/>
+                                <GrabCard g={g} update={update} returnMessage={openSnack} traffic={getTrafficCh(g.id)}/>
                             </Grid>
                         ))}
                         </Grid>

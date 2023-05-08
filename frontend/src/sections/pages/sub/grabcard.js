@@ -20,6 +20,10 @@ import TimerIcon from '@mui/icons-material/Timer';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -57,7 +61,7 @@ const SmallChip = styled(Chip)(({ theme }) => ({
     },
 }));
 
-const GrabCard = ({g, update, returnMessage}) => {
+const GrabCard = ({g, update, returnMessage, traffic}) => {
     const stat = g.status!=-1;
     const [timePass, setTimePass] = useState(Date.now());
     const [loading, setLoading] = React.useState(false);
@@ -148,6 +152,26 @@ const GrabCard = ({g, update, returnMessage}) => {
     };
     const handleClose = () => {setOpen(false);};
 
+    function Traffic(props) {
+        const packs = props.traffic;
+
+        if (packs>50) {
+          return <LightTooltip title={Math.round(traffic/5)+" paquetes por segundo"} placement="right">
+          <TrendingUpIcon sx={{color:'green', border:2, padding:0.5, borderColor:'black', backgroundColor:'white'}}/>
+          </LightTooltip>;
+        }
+
+        if (packs>0) {
+            return <LightTooltip title={Math.round(traffic/5)+" paquetes por segundo"} placement="right">
+                <TrendingFlatIcon sx={{color:'#E5D600', border:2, padding:0.5, borderColor:'black', backgroundColor:'white'}}/>
+                </LightTooltip>;
+        }
+
+        return <LightTooltip title={Math.round(traffic/5)+" paquetes por segundo"} placement="right">
+            <TrendingDownIcon sx={{color:'red', border:2, padding:0.5, borderColor:'black', backgroundColor:'white'}}/>
+            </LightTooltip>;
+    }
+
     return(
         <div>
         <Grid my={1.5} container alignItems="center">
@@ -159,12 +183,20 @@ const GrabCard = ({g, update, returnMessage}) => {
                 <SmallChip label={g.syntax} style={{backgroundColor:'white'}} variant="outlined" />
                 </LightTooltip>
             </Grid>
-            <Grid item xs={2} align="center">
+            <Grid item xs={1} align="center">
                 {(!stat) ? (
                     <SmallChip label={"OFF"} style={{backgroundColor:'#D04A4A', color:'white'}}/>
                 ) : (
                     <SmallChip label={"ON"} style={{backgroundColor:'#47CD1F', color:'white'}}/>
                 )}
+            </Grid>
+            <Grid item xs={1} align="center">
+                {(traffic==-1) ? (
+                    <CircularProgress size="1.5rem" sx={{color:'#ED7D31'}}/>
+                ) : ""}
+                {(traffic>=0) ? (
+                    <Traffic traffic={traffic}/>
+                ) : ""}
             </Grid>
             <Grid item xs={2} align="center">
                 {(stat) ? (
