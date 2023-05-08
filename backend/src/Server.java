@@ -73,6 +73,7 @@ public class Server{
         server.createContext("/getconfig", new ConfigHandler());
         server.createContext("/updateconfig", new UpdateConfigHandler());
         server.createContext("/changekey", new UpdateKeyHandler());
+        server.createContext("/gettraffic", new GetTrafficHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -908,6 +909,32 @@ public class Server{
                     response.append("Error al modificar: la clave antigua no es correcta");
                 }
             }
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class GetTrafficHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                ArrayList<Integer> tf;
+                try {
+                    tf = dataCaptureSystem.getTraffic();
+                    response.append(tf);
+                } catch (InterruptedException e) {
+                    code=401;
+                }
+            }
+
             Server.writeResponse(httpExchange, response.toString(),code);
         }
     }

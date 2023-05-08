@@ -2,6 +2,7 @@ import java.io.*;
 import java.time.Instant;
 import java.util.*; 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 //CLASE CAPTURE SYSTEM ->   SE ENCARGA DE TODAS LAS FUNCIONES RELACIONADAS CON LAS GRABACION
 //                          ADEMAS DEL BORRADO AUTOMATICO Y LA IMPORTACION DE CANALES Y PARAMETROS
@@ -513,6 +514,54 @@ public class CaptureSystem {
             }
         }
         return length / (1024 * 1024);
+    }
+
+    public static ArrayList<Integer> getTraffic() throws IOException, InterruptedException{
+        ArrayList<TaskTraffic> runs = new ArrayList<>();
+
+        for(int i=0; i<canales.size(); i++){
+            String filtros = canales.get(i).filtro;
+            if(filtros.equals("{todo el trafico}")){filtros="";}
+            runs.add(new TaskTraffic(filtros));
+            runs.get(i).start();
+        }
+
+        TimeUnit.SECONDS.sleep(6);
+
+        ArrayList<Integer> packets = new ArrayList<>();
+        for(int i=0; i<canales.size(); i++){
+            int packs = runs.get(i).packets;
+            packets.add(packs);
+        }
+        
+        return packets;
+    }
+
+    static class TaskTraffic extends Thread{
+        String filtros;
+        int packets = 0;
+
+        //creamos una tarea con los filtros del canal, los segundos cada cuanto se genera una nueva pcap
+        //y el numero del canal
+        TaskTraffic(String f){
+            super(f);
+            this.filtros = f;
+            this.packets = 0;
+        }
+
+        @Override
+        public void run(){
+            String result = null;
+            try (InputStream inputStream = Runtime.getRuntime().exec("timeout 5 tcpdump "+filtros).getInputStream();
+                    Scanner s = new Scanner(inputStream).useDelimiter("\\A")) {
+                result = s.hasNext() ? s.next() : null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String[] lines = result.split("\r\n|\r|\n");
+            this.packets = lines.length;
+        }
     }
 
     //CREAR PROCESO
