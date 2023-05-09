@@ -146,6 +146,26 @@ public class DataBase {
         return "OK";
     }
 
+    //ACTUALIZAMOS UN CANAL
+    public String modifyCH(String filtro, int type){
+        String update = "UPDATE canales SET state = "+type+" WHERE filtro = '"+filtro+"'";
+        PreparedStatement pstmt2;
+
+        try {
+            pstmt2 = getConn().prepareStatement(update);
+            pstmt2.executeUpdate();
+            log.addInfo("BD: Se ha modificado el canal con filtro "+filtro);
+        }catch (SQLException e) {
+            log.addWarning("BD: No se ha podido modificar el canal con filtro "+filtro+" {"+e+"}");
+            return e.toString();
+        }catch (Exception e) {
+            log.addWarning("BD: No se ha podido modificar el canal con filtro "+filtro+" {"+e+"}");
+            return e.toString();
+        }
+
+        return "OK";
+    }
+
     //OBTENEMOS LOS CANALES DE LA BASE DE DATOS
     public ArrayList<String> getChannels(){
         ArrayList<String> canales = new ArrayList<>();
@@ -160,7 +180,7 @@ public class DataBase {
             ResultSet rs  = pstmt.executeQuery();
             while (rs.next()) {
                 id++;
-                if(rs.getInt("on")==1){
+                if(rs.getInt("state")==1){
                     canales.add(Integer.toString(id));
                     canales.add(rs.getString("filtro"));
                 }
@@ -196,7 +216,7 @@ public class DataBase {
                 id++;
                 canales.add(Integer.toString(id));
                 canales.add(rs.getString("filtro"));
-                canales.add(Integer.toString(rs.getInt("on")));
+                canales.add(Integer.toString(rs.getInt("state")));
             }
 
             log.addInfo("BD: Se han obtenido todos los canales de la base de datos correctamente");

@@ -75,6 +75,7 @@ public class Server{
         server.createContext("/updateconfig", new UpdateConfigHandler());
         server.createContext("/changekey", new UpdateKeyHandler());
         server.createContext("/gettraffic", new GetTrafficHandler());
+        server.createContext("/modifych", new ModifyChHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -866,6 +867,7 @@ public class Server{
                 response.append(notLogged()); 
                 code=401;
             }else{
+                log.addInfo("Obteniendo parametros de configuracion...");
                 ArrayList<String> config = DB.getConfig();
                 response.append(config);
             }
@@ -888,10 +890,12 @@ public class Server{
                 response.append(notLogged()); 
                 code=401;
             }else{
+                log.addInfo("Se van a actualizar los parametros de configuracion");
                 String parameters = httpExchange.getRequestURI().getQuery();
                 ArrayList<String> params = getConfigFromSyntax(parameters);
                 String result = DB.updateConfig(params);
                 if(result=="OK"){
+                    log.addInfo("Parametros de configuracion actualizados correctamente");
                     for(int i=0; i<5; i++){
                         if(params.get(i)!="0"){
                             dataCaptureSystem.updateConfiguration(i, params.get(i));
@@ -922,12 +926,14 @@ public class Server{
                 response.append(notLogged()); 
                 code=401;
             }else{
+                log.addInfo("Se va a actualizar la clave");
                 String parameters = httpExchange.getRequestURI().getQuery();
                 ArrayList<String> params = getKeysFromSyntax(parameters);
 
                 if(params.get(0).equals(key)){
                     String result = DB.updateKey(params.get(1));
                     if(result=="OK"){
+                        log.addInfo("Clave actualizada correctamente");
                         dataCaptureSystem.updateConfiguration(5, params.get(1));
                         key = params.get(1);
                     }
@@ -953,12 +959,71 @@ public class Server{
                 response.append(notLogged()); 
                 code=401;
             }else{
+                log.addInfo("Se va a intentar obtener el tráfico");
                 ArrayList<Integer> tf;
                 try {
                     tf = dataCaptureSystem.getTraffic();
                     response.append(tf);
                 } catch (InterruptedException e) {
                     code=401;
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class ModifyChHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                ArrayList<Integer> params = modifyChSyntax(parameters);
+                if(params==null){
+                    code=400;
+                }else{
+                    String ch = "";
+                    String result = "";
+
+                    if(params.get(0)==0){
+                        log.addInfo("Se va a intentar deshabilitar el canal "+params.get(1));
+                        ch = CaptureSystem.checkChannelOff(params.get(1));
+                        if(ch=="on"){
+                            response.append("El canal "+params.get(1)+" no se puede deshabilitar porque esta grabando"); 
+                        }else{
+                            result = DB.modifyCH(ch, 0);
+                            response.append(result);
+                        }
+                    }else{
+                        log.addInfo("Se va a intentar habilitar el canal "+params.get(1));
+                        ArrayList<String> canales = DB.getFullChannels();
+                        for(int i=0; i<canales.size(); i++){
+                            if(Integer.toString(params.get(1)).equals(canales.get(i))){
+                                ch = canales.get(i+1);
+                            }
+                        }
+
+                        if(ch==""){
+                            code=400;
+                        }else{
+                            result = DB.modifyCH(ch, 1);
+                            response.append(result);
+                        }
+                    }
+
+                    if(result=="OK"){
+                        CaptureSystem.updateChs();
+                    }
+                    
                 }
             }
 
@@ -1238,6 +1303,21 @@ public class Server{
         }
 
         return keys;
+    }
+
+    public static ArrayList<Integer> modifyChSyntax(String query){
+        ArrayList<Integer> out = new ArrayList<>();
+
+        try {
+            int mode = Integer.parseInt(query.substring(0,1));
+            int ch = Integer.parseInt(query.substring(2));
+            out.add(mode); 
+            out.add(ch);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return out;
     }
 
     //se ejecuta si se apaga el programa: simplemente imprime por pantalla y añade al log el cierre inmediato

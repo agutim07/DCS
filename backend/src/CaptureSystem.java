@@ -310,6 +310,40 @@ public class CaptureSystem {
         return channels;
     }
 
+    public static void updateChs() throws FileNotFoundException, IOException{
+        ArrayList<Canales> newCanales = obtainChs();
+
+        ArrayList<Process> newGrabaciones = new ArrayList<Process>();
+        ArrayList<Long> newGrabacionStart = new ArrayList<Long>();
+        ArrayList<Task> newGrabacionTask = new ArrayList<Task>();
+
+        for(int i=0; i<newCanales.size(); i++){
+            boolean found = false;
+
+            for(int x=0; x<canales.size(); x++){
+                if(newCanales.get(i).id==canales.get(x).id){
+                    found = true;
+
+                    newGrabaciones.add(grabaciones.get(x));
+                    newGrabacionStart.add(grabacionStart.get(x));
+                    newGrabacionTask.add(grabacionTask.get(x));
+                }
+            }
+
+            if(!found){
+                Process process = null;
+                newGrabaciones.add(process);
+                newGrabacionStart.add(Long.valueOf(0));
+                newGrabacionTask.add(null);
+            }
+        }
+
+        CaptureSystem.canales = newCanales;
+        CaptureSystem.grabaciones = newGrabaciones;
+        CaptureSystem.grabacionStart = newGrabacionStart;
+        CaptureSystem.grabacionTask = newGrabacionTask;
+    }
+
     //OBTENEMOS LOS CANALES Y SU ESTADO
     public ArrayList<String> getChannels(){
         boolean something = false;
@@ -386,6 +420,24 @@ public class CaptureSystem {
         }
 
         return false;
+    }
+
+    public static String checkChannelOff(int ch){
+        int x = -1;
+
+        for(int i=0; i<canales.size(); i++){
+            if(canales.get(i).id==ch){
+                if(grabaciones.get(i)==null){
+                    x = i;
+                }
+            }
+        }  
+
+        if(x==-1){
+            return "on";
+        }
+
+        return canales.get(x).filtro;
     }
 
     //DEVUELVE EL ESTADO DE UN PROCESO
