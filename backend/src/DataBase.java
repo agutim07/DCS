@@ -180,6 +180,39 @@ public class DataBase {
         return canales;
     }
 
+    //OBTENEMOS LOS CANALES DE LA BASE DE DATOS
+    public ArrayList<String> getFullChannels(){
+        ArrayList<String> canales = new ArrayList<>();
+        int id = 0;
+
+        String check = "SELECT * FROM canales";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                id++;
+                canales.add(Integer.toString(id));
+                canales.add(rs.getString("filtro"));
+                canales.add(Integer.toString(rs.getInt("on")));
+            }
+
+            log.addInfo("BD: Se han obtenido todos los canales de la base de datos correctamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener todos los canales de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido obtener todos los canales de la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        return canales;
+    }
+
     //GUARDAR DATOS: PARA GUARDAR INFORMACION DE UNA GRABACION UNA VEZ LA HEMOS DETENIDO
     public void saveData(int ch, long start, long stop){
         if(!status){

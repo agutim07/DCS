@@ -58,6 +58,7 @@ public class Server{
         server.createContext("/canales", new CanalesHandler());
         server.createContext("/canalesRaw", new CanalesRawHandler());
         server.createContext("/canalesRawFull", new CanalesRawFullHandler());
+        server.createContext("/getFullCanales", new GetAllCanalesRawHandler());
         server.createContext("/canalesData", new CanalesDataHandler());
         server.createContext("/start", new StartHandler());
         server.createContext("/stop", new StopHandler());
@@ -229,6 +230,32 @@ public class Server{
             }else{
                 //este array incluirá en cada posicion informacion sobre un canal concreto
                 ArrayList<String> canales = dataCaptureSystem.getChannelsRaw(false);
+                if(canales.size()==0){
+                    response.append("error");
+                }else{
+                    response.append(canales);
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class GetAllCanalesRawHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                //este array incluirá en cada posicion informacion sobre un canal concreto
+                ArrayList<String> canales = DB.getFullChannels();
                 if(canales.size()==0){
                     response.append("error");
                 }else{
