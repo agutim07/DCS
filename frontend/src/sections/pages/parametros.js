@@ -48,7 +48,7 @@ export default function Parametros(){
     useEffect(() => {
         if(op=='Configuración'){navigate('/parametros/config');}
         if(op=='Canales'){navigate('/parametros/canales')}
-      }, []);
+    }, []);
 
     return(
         <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center">

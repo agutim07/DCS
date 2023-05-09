@@ -144,7 +144,7 @@ export default function Canales(){
         setLoading(true);
         checkChannels();
         setLoading(false);
-    })
+    }, []);
 
     const [snackMsg, setSnackMsg] = React.useState("false");
     const [snackState, setSnackState] = React.useState("error");
@@ -170,6 +170,7 @@ export default function Canales(){
                 setSnackMsg(message);
                 setSnackState("success");
                 setOpenSnack(true);
+                changeOn(id,state);
             }else{
                 setSnackMsg(response.data);
                 setSnackState("error");
@@ -182,8 +183,17 @@ export default function Canales(){
             console.log(e);
         }
 
-        checkChannels();
         setLoading(false);
+    }
+
+    function changeOn(id, state){
+        var cann = canales;
+        for(let i=0; i<cann.length; i++){
+            if(cann[i].id==id){
+                cann[i].on=state;
+            }
+        }
+        setCanales(cann);
     }
 
     return(
@@ -199,7 +209,7 @@ export default function Canales(){
                 <Grid container direction="column">
                     <Grid item align="left" sx={{mb:0.5}}>
                     <FormControlLabel
-                        control={<ThemedSwitch sx={{ m: 1 }} onClick={() => setSeeDisabled(!seeDisabled)}/>}
+                        control={<ThemedSwitch sx={{ m: 1 }} checked={seeDisabled} onClick={() => setSeeDisabled(!seeDisabled)}/>}
                         label="Ver canales deshabilitados"
                     />
                     </Grid>
