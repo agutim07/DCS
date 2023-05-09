@@ -196,9 +196,9 @@ export default function Grab(){
                     <CircularProgress sx={{color:'#ED7D31'}}/>
                 ) : (
                     (error=="false") ? (
-                        <Grid container direction="column" spacing={1}>
+                        <Grid container direction="column">
                         {grabs.map((g) => (
-                            <Grid item sx={{borderBottom: `1px solid grey`}}> 
+                            <Grid item sx={{border: "1px solid grey", borderRadius: '10px', borderColor: "grey.400", mb:0.5}}> 
                                 <GrabCard g={g} update={update} returnMessage={openSnack} traffic={getTrafficCh(g.id)}/>
                             </Grid>
                         ))}

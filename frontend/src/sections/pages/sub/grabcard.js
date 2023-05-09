@@ -41,8 +41,8 @@ const LightTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.common.white,
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: theme.palette.common.black,
+      color: 'white',
       boxShadow: theme.shadows[1],
       fontSize: 11,
     },
@@ -175,7 +175,7 @@ const GrabCard = ({g, update, returnMessage, traffic}) => {
     return(
         <div>
         <Grid my={1.5} container alignItems="center">
-            <Grid item xs={0.5} align="left">
+            <Grid item xs={0.5} align="center">
                 {g.id}
             </Grid>
             <Grid item xs={3.5} align="left">
@@ -208,14 +208,14 @@ const GrabCard = ({g, update, returnMessage, traffic}) => {
             <Grid item xs={1} align="center"/>
             <Grid item xs={1.5} align="center">
             <Box sx={{ width: '100%' }}>
-                <IconButton onClick={() => handleClickOpen("start")} type="submit" variant="contained" disabled={stat} sx={{width:'40%', '&:disabled': {backgroundColor: '#D5F2CC', }, bgcolor:"#47CD1F", '&:hover': {backgroundColor: '#89D572', }, borderRadius: 0, border: "1px solid", borderRadius: '10px', borderColor: "black", "& .MuiButton-startIcon": { margin: 0 }}}>
+                <IconButton onClick={() => handleClickOpen("start")} type="submit" variant="contained" disabled={stat || traffic==-1} sx={{width:'40%', '&:disabled': {backgroundColor: '#D5F2CC', }, bgcolor:"#47CD1F", '&:hover': {backgroundColor: '#89D572', }, border: "1px solid", borderRadius: '10px', borderColor: "black", "& .MuiButton-startIcon": { margin: 0 }}}>
                     <PlayArrowIcon sx={{color:'white'}}/>
                 </IconButton>
             </Box>
             </Grid>
             <Grid item xs={1.5} align="left">
             <Box sx={{ width: '100%' }}>
-                <IconButton onClick={() => handleClickOpen("stop")} type="submit" variant="contained" disabled={!stat} sx={{width:'40%', '&:disabled': {backgroundColor: '#F2CCCC', }, bgcolor:"#D04A4A", '&:hover': {backgroundColor: '#E46D6D', }, borderRadius: 0, border: "1px solid", borderRadius: '10px', borderColor: "black", "& .MuiButton-startIcon": { margin: 0 }}}>
+                <IconButton onClick={() => handleClickOpen("stop")} type="submit" variant="contained" disabled={!stat || traffic==-1} sx={{width:'40%', '&:disabled': {backgroundColor: '#F2CCCC', }, bgcolor:"#D04A4A", '&:hover': {backgroundColor: '#E46D6D', }, border: "1px solid", borderRadius: '10px', borderColor: "black", "& .MuiButton-startIcon": { margin: 0 }}}>
                     <StopCircleIcon sx={{color:'white'}}/>
                 </IconButton>
             </Box>

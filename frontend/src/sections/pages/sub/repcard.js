@@ -111,9 +111,7 @@ const RepCard = ({r, update, returnMessage}) => {
 
     function getMarks(){
         var end = r.end - r.start;
-
-        var endseconds = (end%60);
-        if(endseconds<10){endseconds = '0'+endseconds};
+        var endlabel = secondsToDateLabel(end);
 
         const sliderMark = [
             {
@@ -122,7 +120,7 @@ const RepCard = ({r, update, returnMessage}) => {
             },
             {
             value: end,
-            label: Math.floor(end/60)+':'+endseconds,
+            label: endlabel,
             },
         ];
         return sliderMark;
@@ -131,14 +129,26 @@ const RepCard = ({r, update, returnMessage}) => {
     function valuetext(current) {
         current = Math.round(current);
 
-        var seconds = (current%60);
-        if(seconds<10){seconds = '0'+seconds};
-
-        return Math.floor(current/60)+':'+seconds;
+        return secondsToDateLabel(current);
     }
 
     function valuetextSpeed(value) {
         return`x${value}`
+    }
+
+    function secondsToDateLabel(seconds){
+        var inicio = 0;
+
+        if(seconds>=3600){
+            inicio = 11;
+        }else if(seconds>=60){
+            inicio = 14;
+        }else{
+            inicio = 16;
+        }
+
+        var out = new Date(seconds * 1000).toISOString().substring(inicio, 19);
+        return out;
     }
 
     const [open, setOpen] = React.useState(false);
@@ -208,7 +218,7 @@ const RepCard = ({r, update, returnMessage}) => {
     return(
         <div>
         <Grid my={1.5} container alignItems="center">
-            <Grid item xs={0.5} align="left">
+            <Grid item xs={0.5} align="center">
                 {r.id}
             </Grid>
             <Grid item xs={1} align="right">

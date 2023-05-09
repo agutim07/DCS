@@ -147,14 +147,14 @@ export default function Rep(){
                     <CircularProgress sx={{color:'#ED7D31'}}/>
                 ) : (
                     (error=="false") ? (
-                        <Grid container direction="column" spacing={2}>
+                        <Grid container direction="column">
                         {reps.map((r) => (
-                            <Grid item sx={{borderBottom: `1px solid grey`}}> 
+                            <Grid item sx={{borderColor: "grey.400", borderBottom: `1px solid grey`, mb:1.5}}> 
                                 <RepCard r={r} update={update} returnMessage={openSnack} />
                             </Grid>
                         ))}
                         {(empty) ? (
-                            <Grid item sx={{borderBottom: `1px solid grey`}}> 
+                            <Grid item sx={{borderColor: "grey.400", borderBottom: `1px solid grey`, mb:1.5}}> 
                                 <Typography sx={{mb:2}} component="h1" variant="h5">
                                     No hay ninguna reproducción activa
                                 </Typography>

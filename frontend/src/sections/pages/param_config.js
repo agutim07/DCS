@@ -90,6 +90,7 @@ export default function Configuracion(){
     }
 
     useEffect(() => {
+        setLoading(true);
         getConfig();
         setLoading(false);
     }, []);
@@ -217,6 +218,11 @@ export default function Configuracion(){
             return;
         }
 
+        if(!checkKey(keys.new1)){
+            setErrorKey("clave no válida, debe tener mínimo 10 caracteres con números y letras");
+            return;
+        }
+
         setLoadingChange(true);
         try {
             const response = await axios.get(`/changekey?old=${keys.old}&new=${keys.new1}`);
@@ -238,6 +244,16 @@ export default function Configuracion(){
         }
         setLoadingChange(false);
         handleCloseDialogKey();
+    }
+
+    function checkKey(key){
+        if(key.length<10){return false;}
+        var hasNum = key.match(/\d+/g);
+        if(hasNum==null){return false;}
+        var hasLetter = /[a-zA-Z]/g;
+        if(!hasLetter.test(key)){return false;}
+
+        return true;
     }
 
     const preventPaste = (e) => {e.preventDefault();};
