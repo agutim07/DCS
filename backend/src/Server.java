@@ -1009,6 +1009,7 @@ public class Server{
                         for(int i=0; i<canales.size(); i++){
                             if(Integer.toString(params.get(1)).equals(canales.get(i))){
                                 ch = canales.get(i+1);
+                                break;
                             }
                         }
 
