@@ -108,6 +108,26 @@ public class CaptureSystem {
         }
     }
 
+    public static boolean checkSyntax(String syn) throws IOException {
+        String cmd = "tcpdump "+syn;
+
+        try {
+            //creamos el proceso y esperamos 1 segundo a ver si se ha creado correctamente
+            Process process = createProcess(cmd);
+            Thread.sleep(1000);
+            
+            //Comprobamos que el proceso se ha iniciado bien y está activo
+            if(processFinished(process)!=-1){
+                return false;
+            }else{
+                process.destroy();
+                return true; 
+            }
+        }catch (Exception e){
+            return false;
+        }
+    }
+
     public static boolean checkInstallations(int type) throws IOException {
         if(type==0){
             Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpdump").getInputStream()).useDelimiter("\\A");

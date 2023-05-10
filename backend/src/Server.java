@@ -76,6 +76,7 @@ public class Server{
         server.createContext("/changekey", new UpdateKeyHandler());
         server.createContext("/gettraffic", new GetTrafficHandler());
         server.createContext("/modifych", new ModifyChHandler());
+        server.createContext("/addch", new AddChHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -1025,6 +1026,39 @@ public class Server{
                         CaptureSystem.updateChs();
                     }
                     
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class AddChHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                if(CaptureSystem.checkSyntax(parameters)){
+                    if(DB.addCH(parameters)){
+                        response.append("OK");
+                        CaptureSystem.updateChs();
+                    }else{
+                        response.append("No se ha podido añadir el canal");
+                    }
+                }else{
+                    response.append("Syntax de canal no valido");
+                    if(so.contains("window")){
+                        response.append(" (se recomienda añadir canales desde un SO Linux)");
+                    }
                 }
             }
 

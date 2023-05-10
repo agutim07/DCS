@@ -272,6 +272,31 @@ public class DataBase {
         }
     }
 
+    //AÑADIR CANAL
+    public boolean addCH(String syn){
+        //insertamos el canal donde se ha grabado, el inicio y el fin (en epoch), y las pcaps generadas
+        String insert = "INSERT INTO canales(filtro,state) VALUES(?,?)";
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(insert);
+            pstmt.setString(1, syn);
+            pstmt.setInt(2, 1);
+            pstmt.executeUpdate();
+            log.addInfo("BD: Se ha añadido un nuevo canal satisfactoriamente");
+            return true;
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido añadir un nuevo canal {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido añadir un nuevo canal {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     //EXTRAER PCAP'S: GRABACIONES QUE INCLUYEN INICIO Y FIN, SOLO INICIO O SOLO FIN
     public ArrayList<String> getData(int ch, long start, long stop, int op){
         //op -> 0 = grabacion que corta inicio y fin 
