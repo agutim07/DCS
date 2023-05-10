@@ -14,6 +14,7 @@ import Switch from '@mui/material/Switch';
 
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import TextField from '@mui/material/TextField';
 
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
@@ -21,13 +22,28 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import CloseIcon from '@mui/icons-material/Close';
+import DoneIcon from '@mui/icons-material/Done';
+import Link from '@mui/material/Link';
 
-import RepCard from './sub/repcard'
-import RepAdd from './sub/repadd'
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+
+import { createTheme, ThemeProvider} from '@mui/material/styles';
 import {styled} from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 import axios from "axios";
+
+const darkTheme = createTheme({
+    typography: {
+        fontFamily: 'Copperplate Gothic Light',
+    },
+    palette: {
+        mode: 'dark',
+    },
+});
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -196,6 +212,49 @@ export default function Canales(){
         setCanales(cann);
     }
 
+    const [open, setOpen] = useState(false);
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const [newCanal, setNewCanal] = useState("");
+    const [errorAdd,setErrorAdd] = useState("");
+    const [loadingAdd, setLoadingAdd] = useState(false);
+
+    const add = async () => {
+        if(newCanal.length==0){
+            setErrorAdd("los filtros no pueden estar vacíos");
+            return;
+        }
+
+        if(newCanal.includes("-w") || newCanal.includes("-W") || newCanal.includes("-G") || newCanal.includes("Z")){
+            setErrorAdd("el filtro incluye etiquetas ilegales");
+            return;
+        }
+
+        setLoadingAdd(true);
+        try {
+            const response = await axios.get(`/addch?${newCanal}`);
+            if(response.data=="OK"){
+                let message = "Un nuevo canal se ha añadido con éxito";
+                setSnackMsg(message);
+                setSnackState("success");
+                setOpenSnack(true);
+                checkChannels();
+                handleClose();
+            }else{
+                setErrorAdd(response.data);
+            }
+        } catch(e) {
+            setErrorAdd(e);
+            console.log(e);
+        } 
+        setLoadingAdd(false);
+    }
+
     return(
         <div>
         {(loading) ? (
@@ -249,6 +308,11 @@ export default function Canales(){
                     </Grid>
                     )
                 ))}
+                    <Grid item sx={{mt:2}}>
+                        <Button onClick={handleClickOpen} startIcon={<AddIcon />} type="submit" variant="contained" sx={{ color:'black', width:'70%', bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
+                            Crear canal
+                        </Button>
+                    </Grid>
                 </Grid>
             ) : (
                 <Box display="flex" justifyContent="center" alignItems="center">
@@ -264,6 +328,51 @@ export default function Canales(){
                     <strong>{snackMsg}</strong>
                 </Alert>
             </Snackbar>
+
+            <ThemeProvider theme={darkTheme}>
+            <Dialog fullWidth={true} maxWidth='md' open={open} onClose={handleClose}>
+                <Grid container direction="row">
+                    <Grid item xs={10}>
+                        <DialogTitle id="form-dialog-title">Crear canal</DialogTitle>
+                    </Grid>
+                    <Grid item xs={2} align="right">
+                        <IconButton onClick={handleClose}>
+                            <CloseIcon sx={{color:'red'}}/>
+                        </IconButton>
+                    </Grid>
+                </Grid>
+                <DialogContent>
+                <Grid container direction="column" alignItems="center" justifyContent="center">
+                        <Grid item>
+                            <TextField autoFocusmargin="dense" id="syntax" label="Filtros del canal" fullWidth value={newCanal} onChange={e => setNewCanal(e.target.value)} sx={{"& .MuiOutlinedInput-root": {"& > fieldset": { borderColor: "#ED7D31"},'&.Mui-focused fieldset': {borderColor: "#ED7D31"},}}} InputLabelProps={{style: { color: '#ED7D31' },}}/>
+                        </Grid>
+                        <Grid item sx={{mt:1.5}}>
+                            <Alert severity="info" style={{ fontSize: '13px' }}>
+                                <b>Aviso:</b> La sintaxis del filtro debe ser una <Link href="https://danielmiessler.com/study/tcpdump/" color="inherit" target="_blank">expresión compatible con tcpdump</Link>.<br /> 
+                                Las etiquetas '-w', '-W', '-G' y 'Z' no están permitidas.
+                            </Alert>
+                        </Grid>
+                </Grid>  
+                </DialogContent>
+                <DialogActions>
+                    <Grid container direction="column" alignItems="center" justifyContent="center">
+                        {loadingAdd ? (
+                            <CircularProgress size={32} sx={{color: "green", mb:2}} />
+                        ) : (
+                            <Button onClick={add} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ color:'white', bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                                Crear
+                            </Button>
+                        )}
+                    </Grid>
+                </DialogActions>
+
+                {(errorAdd!="") ? (
+                <Box display="flex" justifyContent="center" alignItems="center" sx={{mb:2}}>
+                    <Alert sx={{color:'red'}} variant="outlined" severity="error" onClose={() => {setErrorAdd("")}}><b>Error: </b>{errorAdd}</Alert>
+                </Box>
+                ) : ""}
+            </Dialog>
+            </ThemeProvider>
         </div>
     );
 }

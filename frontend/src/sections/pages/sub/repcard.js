@@ -127,6 +127,19 @@ const RepCard = ({r, update, returnMessage}) => {
     }
 
     function valuetext(current) {
+        var d = new Date(0);
+        d.setUTCSeconds(r.start);
+
+        var startime = d.toLocaleTimeString();
+        var a = startime.split(':'); // split it at the colons
+        startime = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
+
+        current = Math.round(current) + startime;
+
+        return secondsToDateLabel(current);
+    }
+
+    function valuetext2(current) {
         current = Math.round(current);
 
         return secondsToDateLabel(current);
@@ -308,7 +321,7 @@ const RepCard = ({r, update, returnMessage}) => {
                                 <Grid item xs={6.3} align="center">
                                 <CustomSlider
                                     value = { changeTime ? time : r.position }
-                                    valueLabelFormat={ changeTime ? valuetext(time) : valuetext(r.position) }
+                                    valueLabelFormat={ changeTime ? valuetext2(time) : valuetext2(r.position) }
                                     step={1}
                                     valueLabelDisplay="on"
                                     marks={getMarks()}

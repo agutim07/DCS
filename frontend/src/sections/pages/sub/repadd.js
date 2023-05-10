@@ -53,13 +53,6 @@ const style = {
   p: 4,
 };
 
-const CustomFontTheme = createTheme({
-    typography: {
-      fontFamily: 'Copperplate Gothic Light',
-      fontSize: 14
-    }
-});
-
 const SliderTrue = styled(Slider)({
     color: '#3EEC61',
     height: 8,
@@ -335,7 +328,6 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
             <DialogTitle id="form-dialog-title">Añadir reproducción</DialogTitle>
             <DialogContent>
             <Grid container direction="column" spacing={0.5} sx={{my:3}}>
-                <ThemeProvider theme={CustomFontTheme}>
                 <Grid item sx={{mb:3}}>
                     <Grid container alignItems="center" textAlign="center">
                         <Grid item xs={6}>
@@ -382,12 +374,11 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                         </Grid>
                     </Grid>
                 </Grid>
-                </ThemeProvider>
             </Grid>  
             </DialogContent>
             <DialogActions>
                 <Box sx={{position: 'relative' }}>
-                    <Button onClick={add} disabled={loadingAdd} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                    <Button onClick={add} disabled={loadingAdd} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ color:'white', bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
                         Iniciar
                     </Button>
                     {loadingAdd && (
@@ -425,7 +416,7 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                 <Box sx={style}>
                 <Grid container spacing={2} columns={16}>
                     <Grid item xs={8} align="left">
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                        <Typography sx={{color:'white'}} id="modal-modal-title" variant="h6" component="h2">
                             {"Grabaciones - Canal "+details.canal}
                         </Typography>
                     </Grid>

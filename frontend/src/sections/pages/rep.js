@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import Dialog from '@mui/material/Dialog';
+import { createTheme, ThemeProvider} from '@mui/material/styles';
 
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
@@ -20,6 +21,15 @@ import axios from "axios";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
+const darkTheme = createTheme({
+    typography: {
+        fontFamily: 'Copperplate Gothic Light',
+    },
+    palette: {
+        mode: 'dark',
+    },
 });
 
 export default function Rep(){
@@ -161,7 +171,7 @@ export default function Rep(){
                             </Grid>
                         ) : ""}
                             <Grid item>
-                                <Button onClick={handleClickOpen} startIcon={<AddIcon />} type="submit" variant="contained" sx={{ color:'black', width:'70%', bgcolor:"#31E3E9", '&:hover': {backgroundColor: '#9FECEF', }}}>
+                                <Button onClick={handleClickOpen} startIcon={<AddIcon />} type="submit" variant="contained" sx={{ color:'black', width:'70%', bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
                                     Añadir reproducción
                                 </Button>
                             </Grid>
@@ -178,9 +188,11 @@ export default function Rep(){
             </Box>
 
             <Box sx={{position: "absolute", bottom: 20, right: 20}} >
-                <Dialog fullWidth={true} maxWidth='lg' open={open} onClose={handleClose}>
-                    <RepAdd close={handleClose} canales={canales} update={update} returnMessage={openSnack} />
-                </Dialog>
+                <ThemeProvider theme={darkTheme}>
+                    <Dialog fullWidth={true} maxWidth='lg' open={open} onClose={handleClose}>
+                        <RepAdd close={handleClose} canales={canales} update={update} returnMessage={openSnack} />
+                    </Dialog>
+                </ThemeProvider>
             </Box>
 
             <Snackbar open={snackOpen} autoHideDuration={4000} onClose={handleSnackClose}>
