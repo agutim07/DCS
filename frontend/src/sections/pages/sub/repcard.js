@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Slider from '@mui/material/Slider';
 import {styled} from '@mui/material/styles';
+import { createTheme, ThemeProvider} from '@mui/material/styles';
 
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -58,6 +59,15 @@ const CustomSlider = styled(Slider)({
     },
     '& .MuiSlider-rail': {
         color: 'black',
+    },
+});
+
+const darkTheme = createTheme({
+    typography: {
+        fontFamily: 'Copperplate Gothic Light',
+    },
+    palette: {
+        mode: 'dark',
     },
 });
 
@@ -279,6 +289,7 @@ const RepCard = ({r, update, returnMessage}) => {
             </Grid>
         </Grid>
 
+        <ThemeProvider theme={darkTheme}>
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Confirmación</DialogTitle>
             <div>
@@ -296,7 +307,7 @@ const RepCard = ({r, update, returnMessage}) => {
             {(!loading) ? (
             <DialogActions>
                 <IconButton onClick={handleDelete}>
-                    <DoneIcon sx={{color:'green'}}/>
+                    <DoneIcon sx={{color:'#76ff03'}}/>
                 </IconButton>
                 <IconButton onClick={handleClose}>
                     <CloseIcon sx={{color:'red'}}/>
@@ -305,7 +316,9 @@ const RepCard = ({r, update, returnMessage}) => {
             ) : ""}
             </div>
         </Dialog>
+        </ThemeProvider>
 
+        <ThemeProvider theme={darkTheme}>
         <Box sx={{position: "absolute", bottom: 20, right: 20}} >
             <Dialog fullWidth maxWidth='md'  open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle id="form-dialog-title">{"Modificar reproducción "+r.id}</DialogTitle>
@@ -320,6 +333,10 @@ const RepCard = ({r, update, returnMessage}) => {
                                 </Grid>
                                 <Grid item xs={6.3} align="center">
                                 <CustomSlider
+                                    sx={{
+                                    '& .MuiSlider-rail': {
+                                        color: "white"
+                                    },}}
                                     value = { changeTime ? time : r.position }
                                     valueLabelFormat={ changeTime ? valuetext2(time) : valuetext2(r.position) }
                                     step={1}
@@ -365,7 +382,7 @@ const RepCard = ({r, update, returnMessage}) => {
                 </DialogContent>
                 <DialogActions>
                     <Box sx={{position: 'relative' }}>
-                        <Button onClick={handleModify} disabled={loadingModify} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        <Button onClick={handleModify} disabled={loadingModify} startIcon={<EditIcon />} type="submit" variant="contained" sx={{ color:'white', bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
                             Aplicar cambios
                         </Button>
                         {loadingModify && (
@@ -383,6 +400,7 @@ const RepCard = ({r, update, returnMessage}) => {
                 ) : ""}
             </Dialog>
         </Box>
+        </ThemeProvider>
         </div> 
     );
 }

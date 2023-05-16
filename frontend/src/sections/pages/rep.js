@@ -10,6 +10,12 @@ import Snackbar from '@mui/material/Snackbar';
 import Dialog from '@mui/material/Dialog';
 import { createTheme, ThemeProvider} from '@mui/material/styles';
 
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import Divider from '@mui/material/Divider';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -142,6 +148,29 @@ export default function Rep(){
         setSnackOpen(false);
     };
 
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const handleOpenDelete = () => {setOpenDelete(true);};
+    const handleCloseDelete = () => {setOpenDelete(false);}
+    const [loadingChange, setLoadingChange] = React.useState(false);
+
+    async function deletePackets() {
+        setLoadingChange(true);
+        const response = await axios.get(`/deletepackets`);
+        let state="", msg="";
+        if(response.data=="OK"){
+            state="success";
+            msg="Paquetes borrados correctamente de la base de datos";
+        }else{
+            state="error";
+            msg="Error al eliminar los paquetes de la base de datos";
+        }
+
+        setSnackState(state); setSnackMessage(msg);
+        setSnackOpen(true);
+        setLoadingChange(false);
+        handleCloseDelete();
+    }
+
     return(
         <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center">
             <Typography component="h1" variant="h4">
@@ -187,10 +216,46 @@ export default function Rep(){
                 )}
             </Box>
 
+            <ThemeProvider theme={darkTheme}>
+            <Dialog open={openDelete} onClose={handleCloseDelete} maxWidth='lg'>
+                <DialogContent>
+                    <Box sx={{borderRadius: 2, m:3, textAlign: 'center'}}>
+                        <Typography component="h1" variant="h5">
+                        Algunos de los paquetes solicitados ya no existen
+                        </Typography>
+                        <Divider sx={{my:1,bgcolor:'white'}}/>
+                        <Grid container spacing={1} direction="row" alignItems="center" justifyContent="center">
+                            <Grid item xs={12}>
+                                <Typography sx={{fontSize:14, mb:2, mt:1}}>
+                                Posiblemente fueran borrados del disco por el mecanismo de borrado automático
+                                </Typography>
+                                <Typography sx={{fontSize:16}}>
+                                ¿Quiere eliminar los registros de los paquetes no existentes de la base de datos?
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Box sx={{position: 'relative' }}>
+                    <Button onClick={deletePackets} disabled={loadingChange} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ mr:1, color:"white", bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        Borrar
+                    </Button>
+                    {loadingChange && (
+                    <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                    )}
+                </Box>
+                <Button sx={{color:'white', borderColor:'red'}} onClick={handleCloseDelete} disabled={loadingChange} startIcon={<CloseIcon sx={{color:'red'}} />} type="submit" variant="outlined">
+                    Cancelar
+                </Button>
+            </DialogActions>
+            </Dialog>
+            </ThemeProvider>
+
             <Box sx={{position: "absolute", bottom: 20, right: 20}} >
                 <ThemeProvider theme={darkTheme}>
                     <Dialog fullWidth={true} maxWidth='lg' open={open} onClose={handleClose}>
-                        <RepAdd close={handleClose} canales={canales} update={update} returnMessage={openSnack} />
+                        <RepAdd close={handleClose} canales={canales} update={update} returnMessage={openSnack} openDelete={handleOpenDelete} />
                     </Dialog>
                 </ThemeProvider>
             </Box>

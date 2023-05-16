@@ -11,7 +11,6 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
-import Snackbar from '@mui/material/Snackbar';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -37,8 +36,6 @@ import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-
-import { createTheme, ThemeProvider} from '@mui/material/styles';
 import {styled} from '@mui/material/styles';
 
 const style = {
@@ -86,7 +83,7 @@ const SliderFalse = styled(Slider)({
     }
 })
 
-const RepAdd = ({close, canales, update, returnMessage}) => {
+const RepAdd = ({close, canales, update, returnMessage, openDelete}) => {
     const [details, setDetails] = useState({canal:1, inicio:Math.round(Date.now()/1000), fin:Math.round((Date.now()/1000)+1)});
     const [inicioDate, setInicioDate] = React.useState(dayjs(epochToDate(details.inicio)));
     const [finDate, setFinDate] = React.useState(dayjs(epochToDate(details.fin)));
@@ -258,6 +255,9 @@ const RepAdd = ({close, canales, update, returnMessage}) => {
                     let state="success", msg=response.data;
                     update();
                     returnMessage(msg,state);
+                    close();
+                }else if(response.data=="Las grabaciones solicitadas ya no existen, posiblemente fueran borradas por falta de espacio"){
+                    openDelete();
                     close();
                 }else{
                     setError(response.data);

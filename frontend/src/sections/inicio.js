@@ -1,7 +1,3 @@
-import { useEffect, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import { useNavigate} from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 
