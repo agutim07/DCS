@@ -77,6 +77,7 @@ public class Server{
         server.createContext("/gettraffic", new GetTrafficHandler());
         server.createContext("/modifych", new ModifyChHandler());
         server.createContext("/addch", new AddChHandler());
+        server.createContext("/deletepackets", new DeletePacketsHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -317,6 +318,30 @@ public class Server{
                     response.append("empty");
                 }else{
                     response.append(canales);
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class DeletePacketsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                if(dataReplaySystem.deletePackets()){
+                    response.append("OK");
+                }else{
+                    response.append("error");
                 }
             }
 

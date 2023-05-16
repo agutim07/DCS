@@ -16,6 +16,7 @@ public class ReplaySystem {
     
     private static LoggerSystem log;
     private static DataBase DB;
+    private static String packetsToDelete = "";
 
     public ReplaySystem(LoggerSystem inputLog, DataBase inputDB, String in) throws FileNotFoundException, IOException{
         log = inputLog;
@@ -210,7 +211,7 @@ public class ReplaySystem {
             File f = new File("captures/"+packets.get(x));
             if(!f.exists()){
                 log.addWarning("START REPLAY: Error, las grabaciones solicitadas ya no existen");
-                DB.deletionMechanism(packets.get(x));
+                this.packetsToDelete = packets.get(x);
                 return("Las grabaciones solicitadas ya no existen, posiblemente fueran borradas por falta de espacio");
             }
         }
@@ -285,7 +286,7 @@ public class ReplaySystem {
                 File f = new File("captures/"+packets1.get(x));
                 if(!f.exists()){
                     log.addWarning("START REPLAY: Error, las grabaciones solicitadas ya no existen");
-                    DB.deletionMechanism(packets1.get(x));
+                    this.packetsToDelete = packets1.get(x);
                     return("Las grabaciones solicitadas ya no existen, posiblemente fueran borradas por falta de espacio");
                 }
             }
@@ -307,7 +308,7 @@ public class ReplaySystem {
                 File f = new File("captures/"+packets2.get(x));
                 if(!f.exists()){
                     log.addWarning("START REPLAY: Error, las grabaciones solicitadas ya no existen");
-                    DB.deletionMechanism(packets2.get(x));
+                    this.packetsToDelete = packets2.get(x);
                     return("Las grabaciones solicitadas ya no existen, posiblemente fueran borradas por falta de espacio");
                 }
             }
@@ -336,7 +337,7 @@ public class ReplaySystem {
                 File f = new File("captures/"+packets3.get(x));
                 if(!f.exists()){
                     log.addWarning("START REPLAY: Error, las grabaciones solicitadas ya no existen");
-                    DB.deletionMechanism(packets3.get(x));
+                    this.packetsToDelete = packets3.get(x);
                     return("Las grabaciones solicitadas ya no existen, posiblemente fueran borradas por falta de espacio");
                 }
             }
@@ -684,6 +685,15 @@ public class ReplaySystem {
 
         if(lines1.length<2){return false;} 
         return true; 
+    }
+
+    public static boolean deletePackets(){
+        if(packetsToDelete.equals("")){
+            return false;
+        }else{
+            DB.deletionMechanism(packetsToDelete);
+            return true;
+        }
     }
 
 

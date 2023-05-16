@@ -498,8 +498,16 @@ public class DataBase {
             e.printStackTrace();
         }
 
-        //en el string de archivos de la grabacion eliminamos la pcap
-        String nuevo = archivos.replace(file+";", "");
+        //en el string de archivos de la grabacion eliminamos la pcap y revisamos aquellas que no existan
+        String[] files = archivos.split(";");
+        String nuevo = archivos;
+
+        for(int i=0; i<files.length; i++){
+            File f = new File(captureFolder+"/"+files[i]);
+            if(!f.exists()){
+                nuevo = nuevo.replace(files[i]+";", "");
+            }
+        }
 
         if(nuevo.length()==0){
             //si eliminando la pcap no queda ninguna más, directamente borramos toda la grabación
