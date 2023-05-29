@@ -22,6 +22,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import KeyIcon from '@mui/icons-material/Key';
 import CloseIcon from '@mui/icons-material/Close';
+import HubIcon from '@mui/icons-material/Hub';
 
 import {styled} from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -30,6 +31,7 @@ import { useLocation , useNavigate } from 'react-router-dom'
 
 import axios from "axios";
 import HomeGrabCard from './sub/homegrabcard';
+import HomeRepCard from './sub/homerepcard';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -75,12 +77,34 @@ export default function Home(){
         checkState();
     }, []);
 
+    const [reps, setReps] = useState([]);
+    const [empty, setEmpty] = useState(false);
     const [errorRep, setErrorRep] = React.useState("false");
     async function checkReps() {
         try {
             const response = await axios.get(`/checkinstall?1`);
             if(response.data!="OK"){
                 setErrorRep(response.data);
+            }else{
+                const response2 = await axios.get(`/reproduccionesRaw`);
+                if(response2.data=="empty"){
+                    setEmpty(true);
+                    setReps([]);
+                }else{
+                    setEmpty(false);
+                    
+                    let repsArray = response2.data;
+                    const repsArray1 = [];
+
+                    let i=0;
+                    while(i<repsArray.length) {
+                        let iter = {id:repsArray[i], canal:repsArray[i+1], start:repsArray[i+2], end:repsArray[i+3], position:repsArray[i+4], speed:repsArray[i+5]};
+                        i = i+6;
+                        repsArray1.push(iter);
+                    }
+
+                    setReps(repsArray1);
+                }
             }
         } catch(e) {
             setErrorRep("No se ha podido conectar con el backend");
@@ -118,6 +142,13 @@ export default function Home(){
             setErrorGrab("No se ha podido conectar con el backend");
             console.log(e);
         }
+    }
+
+    async function update(){
+        setLoading(true);
+        await checkReps(); 
+        await checkGrabs();
+        setLoading(false);
     }
 
     return(
@@ -161,14 +192,14 @@ export default function Home(){
         )}
 
         {(!loading && db && ch>0 && param) ? (
-            <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
+            <Grid container spacing={0} direction="row">
                 <Grid item xs={6} sx={{mt:3}}>
                 <Box display="flex" justifyContent="center" alignItems="center">
                     <Typography component="h1" variant="h5" sx={{color:'black'}}>
                         Grabaciones
                     </Typography>
                 </Box>
-                <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, mr:1, pt:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.300', color: 'grey.800'}}>
+                <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, mr:1.5, pt:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.300', color: 'grey.800'}}>
                     {(errorGrab!="false") ? (
                         <Alert severity="error" sx={{mx:2}}>
                         <strong>{errorGrab}</strong>
@@ -190,15 +221,37 @@ export default function Home(){
                 </Box>
                 </Grid>
                 <Grid item xs={6} sx={{mt:3}}>
-                <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, ml:1, py:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.100', color: 'grey.800'}}>
-                    <Typography component="h1" variant="h6" sx={{color:'black', mb:1}}>
+                <Box display="flex" justifyContent="center" alignItems="center">
+                    <Typography component="h1" variant="h5" sx={{color:'black'}}>
                         Reproducciones
                     </Typography>
+                </Box>
+                <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, ml:1.5, pt:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.300', color: 'grey.800'}}>
                     {(errorRep!="false") ? (
                         <Alert severity="error" sx={{mx:2}}>
                         <strong>{errorRep}</strong>
                         </Alert>
-                    ) : ""}
+                    ) : (
+                        <Grid container direction="column">
+                        {reps.map((r) => (
+                            <Grid item sx={{borderBottom: "1px solid grey", borderColor: "grey.400", mb:2, mx:1}}> 
+                                <HomeRepCard r={r} update={update}/>
+                            </Grid>
+                        ))}
+                        {(empty) ? (
+                            <Grid item sx={{borderBottom: "1px solid grey", borderColor: "grey.400", mb:1.5, mx:1}}> 
+                                <Typography sx={{mb:2}} component="h1" variant="h5">
+                                    No hay ninguna reproducción activa
+                                </Typography>
+                            </Grid>
+                        ) : ""}
+                            <Grid item>
+                                <Button onClick={() => navigate('/reproducciones')} startIcon={<HubIcon />} type="submit" variant="contained" sx={{ mt:1.5, color:'black', width:'100%', bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
+                                    Control de reproducciones
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    )}
                 </Box>
                 </Grid>
             </Grid>
