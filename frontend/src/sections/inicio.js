@@ -13,6 +13,7 @@ import Home from './pages/home';
 import Rep from './pages/rep';
 import Parametros from './pages/parametros';
 import Grab from './pages/grab';
+import Data from './pages/data';
 
 const theme = createTheme({
   typography: {
@@ -32,6 +33,7 @@ function Inicio({updateApp}) {
           <Route path="/grabaciones" element={<Grab/>} />
           <Route path="/reproducciones" element={<Rep/>} />
           <Route path="/parametros/*" element={<Parametros/>} />
+          <Route path="/datos" element={<Data/>} />
           <Route path="/*" element={<p>No hay nada aquí: 404!</p>} />
         </Routes>
       </Box>

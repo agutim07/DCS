@@ -125,6 +125,7 @@ export default function Canales(){
     const [canales, setCanales] = useState([]);
 
     async function checkChannels() {
+        setLoading(true);
         try {
             const response = await axios.get(`/getFullCanales`);
             if(response.data=="error"){
@@ -148,12 +149,11 @@ export default function Canales(){
             setError("No se ha podido conectar con el backend");
             console.log(e);
         } 
+        setLoading(false);
     }
 
     useEffect(() => {
-        setLoading(true);
         checkChannels();
-        setLoading(false);
     }, []);
 
     const [snackMsg, setSnackMsg] = React.useState("false");

@@ -56,6 +56,7 @@ export default function Configuracion(){
     };
 
     async function getConfig() {
+        setLoading(true);
         try {
             const response = await axios.get(`/getconfig`);
             
@@ -77,12 +78,11 @@ export default function Configuracion(){
             setError("No se han podido obtener los parámetros del backend");
             console.log(e);
         } 
+        setLoading(false);
     }
 
     useEffect(() => {
-        setLoading(true);
         getConfig();
-        setLoading(false);
     }, []);
 
     function checkChange(){
