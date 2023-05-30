@@ -60,6 +60,7 @@ public class Server{
         server.createContext("/canalesRawFull", new CanalesRawFullHandler());
         server.createContext("/getFullCanales", new GetAllCanalesRawHandler());
         server.createContext("/canalesData", new CanalesDataHandler());
+        server.createContext("/data", new DataHandler());
         server.createContext("/start", new StartHandler());
         server.createContext("/stop", new StopHandler());
         server.createContext("/replay", new ReplayHandler());
@@ -318,6 +319,32 @@ public class Server{
                     response.append("empty");
                 }else{
                     response.append(canales);
+                }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class DataHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                //este array incluirá cada 5 posiciones el canal, inicio, fin, nº de paquetes y tamaño de cada grabacion
+                ArrayList<Long> data = DB.getRecords();
+                if(data.size()==0){
+                    response.append("empty");
+                }else{
+                    response.append(data);
                 }
             }
 
