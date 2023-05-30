@@ -465,6 +465,55 @@ public class DataBase {
         return data;
     }
 
+    //EXTRAER PCAP'S: GRABACIONES DE UN CANAL
+    public ArrayList<Long> getRecords(){
+        ArrayList<Long> data = new ArrayList<>();
+
+        String check = "SELECT start,stop,canal,archivos FROM grabaciones";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                data.add(Long.valueOf(rs.getInt("canal")));
+                data.add(rs.getLong("start"));
+                data.add(rs.getLong("stop"));
+                String archivos = rs.getString("archivos");
+                String[] files = archivos.split(";");
+                data.add(Long.valueOf(files.length));
+                data.add(Long.valueOf(recordSize(files)));
+            }
+
+            log.addInfo("BD: Se ha consultado información con la base de datos satisfactoriamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    public int recordSize(String[] files){
+        int Bs = 0;
+        for(int i=0; i<files.length; i++){
+            File f = new File(captureFolder+"/"+files[i]);
+            if(!f.exists()){
+                return -1;
+            }else{
+                long size = f.length();
+                Bs+=size;
+            }
+        }
+        return Bs/(1024*1024);
+    }
+
     //MECANISMO DE BORRADO: ELIMINA UNA PCAP DE UNA GRABACIÓN
     public void deletionMechanism(String file){
         log.addInfo("BD: Mecanismo de borrado automático en proceso");
