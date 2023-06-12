@@ -51,25 +51,29 @@ public class Server{
 
         //creamos el servidor HTTP en el puerto condigurado y todas las URLS que tendremos disponibles
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+
+        //API URLs
         server.createContext("/", new MainHandler());
         server.createContext("/info", new InfoHandler());
         server.createContext("/login", new LoginHandler());
-        server.createContext("/logout", new LogoutHandler());
         server.createContext("/canales", new CanalesHandler());
+        server.createContext("/logout", new LogoutHandler());
+        server.createContext("/start", new StartHandler());
+        server.createContext("/stop", new StopHandler());
+        server.createContext("/replay", new ReplayHandler());
+        server.createContext("/jumpreplay", new JumpReplayHandler());
+        server.createContext("/speedreplay", new SpeedReplayHandler());
+        server.createContext("/reproducciones", new StatusHandler());
+        
+        //FRONT URLs
         server.createContext("/canalesRaw", new CanalesRawHandler());
         server.createContext("/canalesRawFull", new CanalesRawFullHandler());
         server.createContext("/getFullCanales", new GetAllCanalesRawHandler());
         server.createContext("/canalesData", new CanalesDataHandler());
         server.createContext("/data", new DataHandler());
-        server.createContext("/start", new StartHandler());
-        server.createContext("/stop", new StopHandler());
-        server.createContext("/replay", new ReplayHandler());
         server.createContext("/replayRaw", new ReplayRawHandler());
         server.createContext("/stopreplay", new StopReplayHandler());
-        server.createContext("/jumpreplay", new JumpReplayHandler());
         server.createContext("/modifyreplay", new ModifyReplayHandler());
-        server.createContext("/speedreplay", new SpeedReplayHandler());
-        server.createContext("/reproducciones", new StatusHandler());
         server.createContext("/reproduccionesRaw", new StatusRawHandler());
         server.createContext("/checkinstall", new CheckHandler());
         server.createContext("/getconfig", new ConfigHandler());
