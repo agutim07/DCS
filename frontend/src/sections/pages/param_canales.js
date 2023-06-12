@@ -170,7 +170,15 @@ export default function Canales(){
 
     async function modifyChannel(state,id){
         let change = "habilitado";
-        if(state==0){change="deshabilitado";}
+        if(state==0){
+            change="deshabilitado";
+            if(canales.filter(c => c.on).length==1){
+                setSnackMsg("Error al modificar: debe de haber al menos un canal habilitado");
+                setSnackState("error");
+                setOpenSnack(true);
+                return;
+            }
+        }
 
         setLoading(true);
         try {

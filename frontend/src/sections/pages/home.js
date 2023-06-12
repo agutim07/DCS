@@ -201,7 +201,7 @@ export default function Home(){
                 </Box>
                 <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, mr:1.5, pt:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.300', color: 'grey.800'}}>
                     {(errorGrab!="false") ? (
-                        <Alert severity="error" sx={{mx:2}}>
+                        <Alert severity="error" sx={{mx:2,mb:2}}>
                         <strong>{errorGrab}</strong>
                         </Alert>
                     ) : (
@@ -228,7 +228,7 @@ export default function Home(){
                 </Box>
                 <Box sx={{ width: '100%', borderRadius: 2, mt:0.5, ml:1.5, pt:2, textAlign: 'center', border: '1px solid', borderColor:'#ED7D31', bgcolor: 'grey.300', color: 'grey.800'}}>
                     {(errorRep!="false") ? (
-                        <Alert severity="error" sx={{mx:2}}>
+                        <Alert severity="error" sx={{mx:2,mb:2}}>
                         <strong>{errorRep}</strong>
                         </Alert>
                     ) : (
