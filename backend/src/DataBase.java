@@ -477,6 +477,7 @@ public class DataBase {
 
             ResultSet rs  = pstmt.executeQuery();
             while (rs.next()) {
+                data.add(Long.valueOf(rs.getInt("id")));
                 data.add(Long.valueOf(rs.getInt("canal")));
                 data.add(rs.getLong("start"));
                 data.add(rs.getLong("stop"));
@@ -512,6 +513,44 @@ public class DataBase {
             }
         }
         return Bs/(1024*1024);
+    }
+
+    public boolean checkIntegrity(int id){
+        String check = "SELECT archivos FROM grabaciones WHERE id = ?";
+        String archivos = "";
+
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+            pstmt.setInt(1, id);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                archivos = rs.getString("archivos");
+            }
+
+            log.addInfo("BD: Se ha consultado información con la base de datos satisfactoriamente");
+        }catch (SQLException e) {
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }catch (Exception e) {
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }
+
+        //en el string de archivos revisamos aquellas que no existan
+        String[] files = archivos.split(";");
+
+        for(int i=0; i<files.length; i++){
+            File f = new File(captureFolder+"/"+files[i]);
+            if(!f.exists()){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     //MECANISMO DE BORRADO: ELIMINA UNA PCAP DE UNA GRABACIÓN
