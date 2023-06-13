@@ -33,7 +33,7 @@ function Inicio({updateApp}) {
           <Route path="/grabaciones" element={<Grab/>} />
           <Route path="/reproducciones" element={<Rep/>} />
           <Route path="/parametros/*" element={<Parametros/>} />
-          <Route path="/datos" element={<Data/>} />
+          <Route path="/datos/*" element={<Data/>} />
           <Route path="/*" element={<p>No hay nada aquí: 404!</p>} />
         </Routes>
       </Box>

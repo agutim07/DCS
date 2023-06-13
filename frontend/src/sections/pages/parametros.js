@@ -11,7 +11,7 @@ import {
     BrowserRouter as Router,
     Routes,
     Route
-  } from "react-router-dom";
+} from "react-router-dom";
 
 import Configuracion from './param_config';
 import Canales from './param_canales';
