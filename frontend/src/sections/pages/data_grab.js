@@ -2,10 +2,12 @@ import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import MuiAlert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
+import Snackbar from '@mui/material/Snackbar';
+import Button from '@mui/material/Button';
 
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -25,8 +27,12 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 import {styled} from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { alpha } from "@mui/material";
-import { useLocation , useNavigate } from 'react-router-dom'
+
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
 
 import axios from "axios";
 
@@ -45,6 +51,15 @@ const LightTooltip = styled(({ className, ...props }) => (
     },
 }));
 
+const darkTheme = createTheme({
+    typography: {
+        fontFamily: 'Copperplate Gothic Light',
+    },
+    palette: {
+        mode: 'dark',
+    },
+});
+
 export default function DataGrab(){
     const [loading, setLoading] = useState(true);
     const [grabaciones, setGrabaciones] = useState([]);
@@ -59,7 +74,7 @@ export default function DataGrab(){
         try {
             const response = await axios.get(`/data`);
             if(response.data=="empty"){
-                setError("No hay ninguna grabación disponible en este canal");
+                setError("No hay ninguna grabación existente");
             }else{
                 const arrayChannels = response.data;
                 const arrayGrabaciones = [];
@@ -166,6 +181,85 @@ export default function DataGrab(){
         return 0;
     }
 
+    const [dialogGrab, setDialogGrab] = useState();
+    const [integrityPackets, setIntegrityPackets] = useState(0);
+    async function checkIntegrity(g) {
+        setLoading(true);
+        try {
+            const response = await axios.get(`/checkintegrity?id=${g.realId}`);
+            if(response.data==0){
+                openSnack("La grabación "+g.id+" tiene todos sus archivos íntegros","success");
+            }else if(response.data==g.archivos){
+                setDialogGrab(g);
+                setDeletionType(1);
+                setOpenDelete(true);
+            }else{
+                setIntegrityPackets(response.data);
+                setDialogGrab(g);
+                setOpenIntegrity(true);
+            }
+        } catch(e) {
+            console.log(e);
+            openSnack("Error al comprobar la integridad","error");
+        } 
+        setLoading(false);
+    }
+
+    async function deletePackets(type) {
+        setLoadingChange(true);
+
+        try {
+            const response = await axios.get(`/deleterecord?${type}&id=${dialogGrab.realId}`);
+            if(response.data){
+                if(type==1){
+                    openSnack("La grabación ha sido borrada satisfactoriamente","success");
+                }else{
+                    openSnack("La grabación "+dialogGrab.id+" ha eliminado registros satisfactoriamente","success");
+                }
+            }else{
+                openSnack("Error al intentar eliminar/limpiar la grabación "+dialogGrab.id,"error");
+            }
+        } catch(e) {
+            console.log(e);
+            openSnack("Error al comunicarse con la base de datos","error");
+        } 
+        setLoadingChange(false);
+        setOpenDelete(false);
+        setOpenIntegrity(false);
+        update();
+    }
+
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const handleCloseDelete = () => {setOpenDelete(false);}
+    const handleOpenNormalDelete = (g) => {
+        setDialogGrab(g);
+        setDeletionType(0);
+        setOpenDelete(true);
+    }
+    const [deletionType, setDeletionType] = useState(0);
+
+    const [openIntegrity, setOpenIntegrity] = React.useState(false);
+    const handleCloseIntegrity = () => {setOpenIntegrity(false);}
+    const [loadingChange, setLoadingChange] = React.useState(false);
+
+    const [snackOpen, setSnackOpen] = React.useState(false);
+    const [snackState, setSnackState] = useState("");
+    const [snackMessage, setSnackMessage] = useState("");
+
+    function openSnack(message, state){
+        setSnackMessage(message);
+        setSnackState(state);
+        setSnackOpen(true);
+    };
+
+    const handleSnackClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackOpen(false);
+    };
+
     return(
         <Grid container spacing={0} direction="column">
         {(error=="false" && !loading) ? (
@@ -185,14 +279,16 @@ export default function DataGrab(){
         </Box>
         </Box>
         ) : ""}
+
         <TableContainer sx={{mt:2,overflowY: "hidden"}} component={Paper}>
             <Table sx={{backgroundColor: '#E9A272'}} size="small">
+            <Box display="flex" justifyContent="center" alignItems="center">
                 {(loading) ? (
                 <CircularProgress sx={{my:1,color:'#ED7D31'}}/>
                 ) : ""}
 
                 {(error!="false" && !loading) ? (
-                <Alert severity="error" sx={{mx:2}}>
+                <Alert severity="error" sx={{mx:2, my:2}}>
                     <strong>{error}</strong>
                 </Alert>
                 ) : ""}
@@ -224,14 +320,18 @@ export default function DataGrab(){
                     <TableCell align="right">{epochToDateLabel(g.fin)}</TableCell>
                     <TableCell align="right">
                         <LightTooltip title="Comprobar integridad">
-                            <IconButton sx={{color:'black', borderRadius: 1, border:1, borderColor:'black'}} size="small">
+                            <IconButton onClick={() => checkIntegrity(g)} sx={{color:'black', borderRadius: 1, border:1, borderColor:'black'}} size="small">
                                 {g.archivos}
                             </IconButton>
                         </LightTooltip>
                     </TableCell>
-                    <TableCell align="right">{g.size}</TableCell>
+                    {(g.size>=0) ? (
+                        <TableCell align="right">{g.size}</TableCell>
+                    ) : (
+                        <TableCell align="right"><b>Compruebe integridad</b></TableCell>
+                    )}
                     <TableCell align="right">
-                        <IconButton aria-label="delete" sx={{backgroundColor:'white'}}>
+                        <IconButton aria-label="delete" sx={{backgroundColor:'white'}} onClick={() => handleOpenNormalDelete(g)}>
                             <DeleteIcon sx={{color:'#FC1208'}}/>
                         </IconButton>
                     </TableCell>
@@ -240,8 +340,85 @@ export default function DataGrab(){
                 </TableBody>
                 </div>
                 ) : ""}
+            </Box>
             </Table>
         </TableContainer>
+
+        {(openIntegrity) ? (
+        <ThemeProvider theme={darkTheme}>
+            <Dialog open={openIntegrity} onClose={handleCloseIntegrity} maxWidth='lg'>
+                <DialogContent>
+                    <Box sx={{borderRadius: 2, m:3}}>
+                       <Alert severity="warning" sx={{ width: '100%' }}>
+                            <AlertTitle>Grabación en el disco incompleta</AlertTitle>
+                            {"Faltan "+integrityPackets+" archivo/s en el disco de los "+dialogGrab.archivos+" que debería tener la grabación "+dialogGrab.id}
+                        </Alert>
+                        <Typography sx={{fontSize:16, mt:2}}>
+                            ¿Quiere eliminar los registros de los paquetes no existentes de la base de datos?
+                        </Typography>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Box sx={{position: 'relative' }}>
+                    <Button onClick={() => deletePackets(0)} disabled={loadingChange} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ mr:1, color:"white", bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        Eliminar
+                    </Button>
+                    {loadingChange && (
+                    <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                    )}
+                </Box>
+                <Button sx={{color:'white', borderColor:'red'}} onClick={handleCloseIntegrity} disabled={loadingChange} startIcon={<CloseIcon sx={{color:'red'}} />} type="submit" variant="outlined">
+                    Cancelar
+                </Button>
+                </DialogActions>
+            </Dialog>
+        </ThemeProvider>
+        ) : ""}
+
+        {(openDelete) ? (
+        <ThemeProvider theme={darkTheme}>
+            <Dialog open={openDelete} onClose={handleCloseDelete} maxWidth='lg'>
+                <DialogContent>
+                    <Box sx={{borderRadius: 2, m:3}}>
+                       <Alert severity="error" sx={{ width: '100%' }}>
+                            <AlertTitle>Aviso</AlertTitle>
+                            {(deletionType==1) ? (
+                                "Ningún archivo de esta grabación está en el disco (se recomienda borrarla)"
+                            ) : (
+                                "El borrado de la grabación conlleva eliminar su registro de la base de datos y todos los archivos de la misma que estén en el disco"
+                            )}
+                        </Alert>
+                        <Typography sx={{fontSize:16, mt:2}}>
+                            {(deletionType==1) ? (
+                                "¿Quiere eliminar el registro de la grabación de la base de datos?"
+                            ) : (
+                                "¿Quiere proceder con el borrado completo de la grabación?"
+                            )}
+                        </Typography>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Box sx={{position: 'relative' }}>
+                    <Button onClick={() => deletePackets(1)} disabled={loadingChange} startIcon={<DoneIcon />} type="submit" variant="contained" sx={{ mr:1, color:"white", bgcolor:"green", '&:hover': {backgroundColor: 'darkgreen', }}}>
+                        Eliminar
+                    </Button>
+                    {loadingChange && (
+                    <CircularProgress size={24} sx={{color: "green", position: 'absolute', top: '50%', left: '50%', marginTop: '-12px', marginLeft: '-12px',}} />
+                    )}
+                </Box>
+                <Button sx={{color:'white', borderColor:'red'}} onClick={handleCloseDelete} disabled={loadingChange} startIcon={<CloseIcon sx={{color:'red'}} />} type="submit" variant="outlined">
+                    Cancelar
+                </Button>
+                </DialogActions>
+            </Dialog>
+        </ThemeProvider>
+        ) : ""}
+
+        <Snackbar open={snackOpen} autoHideDuration={5000} onClose={handleSnackClose}>
+            <Alert onClose={handleSnackClose} severity={snackState} sx={{ width: '100%' }}>
+                {snackMessage}
+            </Alert>
+        </Snackbar>
         </Grid>
     );
 }
