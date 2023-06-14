@@ -83,6 +83,9 @@ public class Server{
         server.createContext("/modifych", new ModifyChHandler());
         server.createContext("/addch", new AddChHandler());
         server.createContext("/deletepackets", new DeletePacketsHandler());
+        server.createContext("/deleterecord", new DeleteHandler());
+        server.createContext("/checkintegrity", new CheckIntegrityHandler());
+        server.createContext("/recordinfo", new RecordInfoHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -356,6 +359,53 @@ public class Server{
         }
     }
 
+    static class CheckIntegrityHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                int id = Integer.parseInt(parameters.substring(3));
+
+                response.append(DB.checkIntegrity(id));
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class DeleteHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                String parameters = httpExchange.getRequestURI().getQuery();
+                int tipo = Integer.parseInt(parameters.substring(0,1));
+                int id = Integer.parseInt(parameters.substring(5));
+
+                response.append(DB.deletion(id,tipo));
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
     static class DeletePacketsHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
@@ -374,6 +424,29 @@ public class Server{
                 }else{
                     response.append("error");
                 }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class RecordInfoHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                //String parameters = httpExchange.getRequestURI().getQuery();
+                //int id = Integer.parseInt(parameters.substring(3));
+
+                response.append(dataCaptureSystem.grabacionInfo());
             }
 
             Server.writeResponse(httpExchange, response.toString(),code);
