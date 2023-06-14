@@ -1,7 +1,6 @@
 import java.io.*;
 import java.time.Instant;
-import java.util.*; 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 //CLASE CAPTURE SYSTEM ->   SE ENCARGA DE TODAS LAS FUNCIONES RELACIONADAS CON LAS GRABACION
@@ -634,6 +633,22 @@ public class CaptureSystem {
             String[] lines = result.split("\r\n|\r|\n");
             this.packets = lines.length;
         }
+    }
+
+    public ArrayList<String> grabacionInfo() throws IOException{
+        String cmd = "capinfos captures/cap_canal2_1676914154";
+        Process proc = createProcess(cmd);
+        ArrayList<String> out = new ArrayList<>();
+
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+        // Read the output from the command
+        String s = null;
+        while ((s = stdInput.readLine()) != null) {
+            out.add(s);
+        }
+
+        return out;
     }
 
     //CREAR PROCESO

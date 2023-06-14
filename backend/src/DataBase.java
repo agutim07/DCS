@@ -469,7 +469,7 @@ public class DataBase {
     public ArrayList<Long> getRecords(){
         ArrayList<Long> data = new ArrayList<>();
 
-        String check = "SELECT start,stop,canal,archivos FROM grabaciones";
+        String check = "SELECT * FROM grabaciones";
         
         PreparedStatement pstmt;
         try {
@@ -515,7 +515,7 @@ public class DataBase {
         return Bs/(1024*1024);
     }
 
-    public boolean checkIntegrity(int id){
+    public int checkIntegrity(int id){
         String check = "SELECT archivos FROM grabaciones WHERE id = ?";
         String archivos = "";
 
@@ -533,24 +533,25 @@ public class DataBase {
         }catch (SQLException e) {
             log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
             e.printStackTrace();
-            return false;
+            return -1;
         }catch (Exception e) {
             log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
             e.printStackTrace();
-            return false;
+            return -1;
         }
 
         //en el string de archivos revisamos aquellas que no existan
         String[] files = archivos.split(";");
+        int errors = 0;
 
         for(int i=0; i<files.length; i++){
             File f = new File(captureFolder+"/"+files[i]);
             if(!f.exists()){
-                return false;
+                errors++;
             }
         }
 
-        return true;
+        return errors;
     }
 
     //MECANISMO DE BORRADO: ELIMINA UNA PCAP DE UNA GRABACIÓN
@@ -639,6 +640,97 @@ public class DataBase {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean deletion(int id, int full){
+        String check = "SELECT archivos FROM grabaciones WHERE id = ?";
+        String archivos = "";
+
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+            pstmt.setInt(1, id);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                archivos = rs.getString("archivos");
+            }
+
+            log.addInfo("BD: Se ha consultado información con la base de datos satisfactoriamente");
+        }catch (SQLException e) {
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }catch (Exception e) {
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }
+
+        String[] files = archivos.split(";");
+
+        if(full==1){
+            for(int i=0; i<files.length; i++){
+                File f = new File(captureFolder+"/"+files[i]);
+                if(f.exists()){
+                    f.delete();
+                }
+            }
+
+            String delete = "DELETE FROM grabaciones WHERE id = ?";
+            PreparedStatement pstmt2;
+
+            try {
+                pstmt2 = getConn().prepareStatement(delete);
+                pstmt2.setInt(1, id);
+
+                pstmt2.executeUpdate();
+                log.addInfo("BD: Se han borrado datos de grabaciones ya no disponibles");
+            }catch (SQLException e) {
+                log.addWarning("BD: No se ha podido borrar datos de grabaciones ya no disponibles {"+e+"}");
+                e.printStackTrace();
+                return false;
+            }catch (Exception e) {
+                log.addWarning("BD: No se ha podido borrar datos de grabaciones ya no disponibles {"+e+"}");
+                e.printStackTrace();
+                return false;
+            }
+
+            return true;
+        }
+
+
+        String nuevo = archivos;
+
+        for(int i=0; i<files.length; i++){
+            File f = new File(captureFolder+"/"+files[i]);
+            if(!f.exists()){
+                nuevo = nuevo.replace(files[i]+";", "");
+            }
+        }
+
+        //actualizamos los archivos de la grabacion sin la pcap/s eliminada
+        String update = "UPDATE grabaciones SET archivos=? WHERE id = ?";
+        PreparedStatement pstmt2;
+
+        try {
+            pstmt2 = getConn().prepareStatement(update);
+            pstmt2.setString(1, nuevo);
+            pstmt2.setInt(2, id);
+
+            pstmt2.executeUpdate();
+            log.addInfo("BD: Se han actualizado datos de grabaciones eliminando archivos ya no disponibles");
+        }catch (SQLException e) {
+            log.addWarning("BD: No se ha podido actualizar datos de grabaciones ya no disponibles {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }catch (Exception e) {
+            log.addWarning("BD: No se ha podido actualizar datos de grabaciones ya no disponibles {"+e+"}");
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     //OBTENER ARCHIVOS PCAP'S CAPTURADOS: RECORRE LA CARPETA DE CAPTURAS Y DEVUELVE LAS PCAPS DE UN RANGO Y CANAL
