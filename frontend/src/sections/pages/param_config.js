@@ -164,6 +164,8 @@ export default function Configuracion(){
                 let message = "Los parámetros se han actualizado con éxito";
                 if(str.includes("maxpacks") || str.includes("newpack")){
                     message+=": si hay grabaciones activas reinicie para que surgan efecto";
+                }else if(str.includes("interface")){
+                    message+=": si hay reproducciones activas reinicielas para que cambie la interfaz";
                 }
                 setSnackMsg(message);
                 setSnackState("success");

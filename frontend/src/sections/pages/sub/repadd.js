@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
+import Snackbar from '@mui/material/Snackbar';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -24,6 +25,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import DoneIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/Warning';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -323,6 +325,21 @@ const RepAdd = ({close, canales, update, returnMessage, openDelete}) => {
                 />;
     }
 
+    const [snackOpen, setSnackOpen] = React.useState(false);
+
+    function copy(date){
+        navigator.clipboard.writeText(date);
+        setSnackOpen(true);
+    };
+
+    const handleSnackClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackOpen(false);
+    };
+
     return(
         <div>
             <DialogTitle id="form-dialog-title">Añadir reproducción</DialogTitle>
@@ -426,7 +443,7 @@ const RepAdd = ({close, canales, update, returnMessage, openDelete}) => {
                         </IconButton>
                     </Grid>
                 </Grid>
-                <TableContainer sx={{mt:2}} component={Paper}>
+                <TableContainer sx={{mt:2,mb:6}} component={Paper}>
                     <Table sx={{ minWidth: 650, backgroundColor: '#E9A272'}} size="small" aria-label="a dense table">
                         <TableHead>
                         <TableRow>
@@ -448,15 +465,28 @@ const RepAdd = ({close, canales, update, returnMessage, openDelete}) => {
                                 {g.id}
                             </TableCell>
                             <TableCell align="right">{secondsToDateLabel(g.fin-g.inicio)}</TableCell>
-                            <TableCell align="right">{g.inicio}</TableCell>
+                            <TableCell align="right">
+                                <Button sx={{color:'white'}} size="small" endIcon={<ContentCopyIcon fontSize="inherit" />} onClick={() => copy(g.inicio)}>
+                                    {g.inicio}
+                                </Button>
+                            </TableCell>
                             <TableCell align="right">{epochToDateLabel(g.inicio)}</TableCell>
-                            <TableCell align="right">{g.fin}</TableCell>
+                            <TableCell align="right">
+                                <Button sx={{color:'white'}} size="small" endIcon={<ContentCopyIcon fontSize="inherit" />} onClick={() => copy(g.fin)}>
+                                    {g.fin}
+                                </Button>
+                            </TableCell>
                             <TableCell align="right">{epochToDateLabel(g.fin)}</TableCell>
                             </TableRow>
                         ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <Snackbar open={snackOpen} autoHideDuration={1000} onClose={handleSnackClose}>
+                    <Alert onClose={handleSnackClose} severity='info' sx={{ width: '100%'}}>
+                        Tiempo epoch copiado al portapapeles
+                    </Alert>
+                </Snackbar>
                 </Box>
             </Modal>
         </div>
