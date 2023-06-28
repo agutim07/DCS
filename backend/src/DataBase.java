@@ -501,6 +501,41 @@ public class DataBase {
         return data;
     }
 
+    public ArrayList<ArrayList<String>> getRecordsFiles(){
+        ArrayList<String> data = new ArrayList<>();
+        ArrayList<String> ch = new ArrayList<>();
+
+        String check = "SELECT archivos,canal FROM grabaciones";
+        
+        PreparedStatement pstmt;
+        try {
+            pstmt = getConn().prepareStatement(check);
+
+            ResultSet rs  = pstmt.executeQuery();
+            while (rs.next()) {
+                String archivos = rs.getString("archivos");
+
+                ch.add(String.valueOf(rs.getInt("canal")));
+                data.add(archivos);
+            }
+
+            log.addInfo("BD: Se ha consultado información con la base de datos satisfactoriamente");
+        }catch (SQLException e) {
+            //una excepcion de sql significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }catch (Exception e) {
+            //una excepcion significaria que no hemos podido subir a la base de datos, error
+            log.addSevere("BD: No se ha podido consultar información con la base de datos {"+e+"}");
+            e.printStackTrace();
+        }
+
+        ArrayList<ArrayList<String>> out = new ArrayList<>();
+        out.add(data);
+        out.add(ch);
+        return out;
+    }
+
     public int recordSize(String[] files){
         int Bs = 0;
         for(int i=0; i<files.length; i++){

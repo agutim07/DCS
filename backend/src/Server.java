@@ -437,16 +437,40 @@ public class Server{
             int code = 200;
             StringBuilder response = new StringBuilder();
 
+            String parameters = httpExchange.getRequestURI().getQuery();
+            int tipo = Integer.parseInt(parameters);
+
             if(!logged){
                 //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
                 log.addWarning("Intento de acceso a sección no permitido");
                 response.append(notLogged()); 
                 code=401;
             }else{
-                //String parameters = httpExchange.getRequestURI().getQuery();
-                //int id = Integer.parseInt(parameters.substring(3));
-
-                response.append(dataCaptureSystem.grabacionInfo());
+                if(tipo==0){
+                    ArrayList<Integer> info = new ArrayList<>();
+                    try {
+                        info = dataCaptureSystem.grabacionesInfo();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(info.size()==0){
+                        response.append("empty");
+                    }else{
+                        response.append(info);
+                    }
+                }else{
+                    ArrayList<String> info = new ArrayList<>();
+                    try {
+                        info = dataCaptureSystem.grabacionesPackets();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(info.size()==0){
+                        response.append("empty");
+                    }else{
+                        response.append(info);
+                    }
+                }
             }
 
             Server.writeResponse(httpExchange, response.toString(),code);
@@ -951,8 +975,22 @@ public class Server{
             String parameters = httpExchange.getRequestURI().getQuery();
             int chequeo = Integer.parseInt(parameters);
 
+            //2 = chequeo para la datos/graficos
             //1 = chequeo para la reproduccion
             //0 = chequeo para la grabaccion
+            if(chequeo==2){
+                log.addInfo("Comprobando instalaciones para graficos de datos...");
+                if(!so.contains("linux")){
+                    response.append("La funcion para visualizar graficos solo esta disponible en S0's Linux"); //-1 = el SO no es linux
+                }else{
+                    int state = dataCaptureSystem.checkInstallationsGraph();
+                    if(state==0){response.append("Faltan las instalaciones de tshark y wireshark para obtener los datos de las grabaciones");}
+                    if(state==1){response.append("Falta las instalacion de tshark para obtener los datos de las grabaciones");}
+                    if(state==2){response.append("Falta las instalacion de wireshark para obtener los datos de las grabaciones");}
+                    if(state==3){response.append("OK");}
+                    
+                }
+            }
             if(chequeo==1){
                 log.addInfo("Comprobando instalaciones para reproduccion...");
                 if(!so.contains("linux")){
@@ -965,12 +1003,13 @@ public class Server{
                     if(state==3){response.append("OK");}
                     
                 }
-            }else{
+            }
+            if(chequeo==0){
                 log.addInfo("Comprobando instalaciones para grabacion...");
                 if(!so.contains("linux")){
                     response.append("windows");
                 }else{
-                    Boolean state = dataCaptureSystem.checkInstallations(0);
+                    Boolean state = dataCaptureSystem.checkInstallations();
                     if(!state){
                         response.append("Falta la instalacion de tcpdump para grabar");
                     }else{
