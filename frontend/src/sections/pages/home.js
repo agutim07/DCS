@@ -2,32 +2,16 @@ import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import MuiAlert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import Dialog from '@mui/material/Dialog';
-import Divider from '@mui/material/Divider';
-import TextField from '@mui/material/TextField';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import Chip from '@mui/material/Chip';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
-import IconButton from '@mui/material/IconButton';
-import TimerIcon from '@mui/icons-material/Timer';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import KeyIcon from '@mui/icons-material/Key';
-import CloseIcon from '@mui/icons-material/Close';
 import HubIcon from '@mui/icons-material/Hub';
 
-import {styled} from '@mui/material/styles';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { alpha } from "@mui/material";
-import { useLocation , useNavigate } from 'react-router-dom'
+import {useNavigate } from 'react-router-dom'
 
 import axios from "axios";
 import HomeGrabCard from './sub/homegrabcard';
