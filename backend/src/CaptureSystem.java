@@ -127,20 +127,33 @@ public class CaptureSystem {
         }
     }
 
-    public static boolean checkInstallations(int type) throws IOException {
-        if(type==0){
-            Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpdump").getInputStream()).useDelimiter("\\A");
-            String output1 = s1.hasNext() ? s1.next() : "";
-            String[] lines1 = output1.split("\r\n|\r|\n");
+    public static boolean checkInstallations() throws IOException {
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpdump").getInputStream()).useDelimiter("\\A");
+        String output1 = s1.hasNext() ? s1.next() : "";
+        String[] lines1 = output1.split("\r\n|\r|\n");
 
-            if(lines1.length<2){
-                return false;
-            }else{
-                return true;
-            }
-        }else{
+        if(lines1.length<2){
             return false;
+        }else{
+            return true;
         }
+    }
+
+    //chequeamos que tshark y wireshark esten instaladas
+    public static int checkInstallationsGraph() throws IOException {
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tshark").getInputStream()).useDelimiter("\\A");
+        String output1 = s1.hasNext() ? s1.next() : "";
+        String[] lines1 = output1.split("\r\n|\r|\n");
+
+        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list wireshark").getInputStream()).useDelimiter("\\A");
+        String output2 = s2.hasNext() ? s2.next() : "";
+        String[] lines2 = output2.split("\r\n|\r|\n");
+
+
+        if(lines1.length<2 && lines2.length<2){return 0;}   //ninguna instalada
+        if(lines1.length<2){return 1;}  //tshark no instalado
+        if(lines2.length<2){return 2;}  //wireshark no instalado
+        return 3;   //ambas instaladas
     }
         
 
@@ -635,20 +648,232 @@ public class CaptureSystem {
         }
     }
 
-    public ArrayList<String> grabacionInfo() throws IOException{
-        String cmd = "capinfos captures/cap_canal2_1676914154";
-        Process proc = createProcess(cmd);
-        ArrayList<String> out = new ArrayList<>();
+    public ArrayList<Integer> grabacionesInfo() throws IOException, InterruptedException{
+        log.addInfo("Obteniendo información de grabaciones existentes...");
+        ArrayList<Integer> out = new ArrayList<>();
+        ArrayList<ArrayList<String>> in = DB.getRecordsFiles();
 
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        ArrayList<String> data = in.get(0);
 
-        // Read the output from the command
-        String s = null;
-        while ((s = stdInput.readLine()) != null) {
-            out.add(s);
+        for(int i=0; i<data.size(); i++){
+            String[] files = data.get(i).split(";");
+            boolean allFiles = true;
+
+            for(int x=0; x<files.length; x++){
+                File f = new File(captureFolder+"/"+files[x]);
+                if(!f.exists()){
+                    allFiles = false;
+                }
+            }
+
+            if(!allFiles){
+                out.add(i+1);
+                out.add(Integer.parseInt(in.get(1).get(i)));
+                out.add(-1); out.add(-1); out.add(-1); out.add(-1);
+                log.addWarning("Aviso: faltan paquetes en la grabación nº"+i);
+            }else{
+                log.addWarning("Obteniendo datos de la grabación nº"+i);
+                ArrayList<ArrayList<Integer>> subdata = getCapInfo(files);
+                log.addWarning("Datos de grabación nº"+i+" obtenidos correctamente");
+                for(int x=0; x<subdata.size(); x++){
+                    out.add(i+1);
+                    out.add(Integer.parseInt(in.get(1).get(i)));
+                    out.add(subdata.get(x).get(0)); out.add(subdata.get(x).get(1)); out.add(subdata.get(x).get(2)); out.add(subdata.get(x).get(3));
+                }
+            }
         }
 
         return out;
+    }
+
+    private ArrayList<ArrayList<Integer>> getCapInfo(String[] files) throws IOException, InterruptedException{
+        ArrayList<ArrayList<Integer>> data = new ArrayList<>();
+        ArrayList<TaskCapInfo> runs = new ArrayList<>();
+
+        for(int x=0; x<files.length; x++){
+            String file = files[x];
+            runs.add(new TaskCapInfo(file));
+            runs.get(x).start();
+        }
+
+        TimeUnit.SECONDS.sleep(6);
+
+        for(int i=0; i<files.length; i++){
+            ArrayList<Integer> subdata = runs.get(i).data;
+            data.add(subdata);
+        }
+
+        return data;
+    }
+
+    static class TaskCapInfo extends Thread{
+        String file;
+        ArrayList<Integer> data;
+
+        TaskCapInfo(String f){
+            super(f);
+            this.file = f;
+            this.data = new ArrayList<>();
+        }
+
+        @Override
+        public void run(){
+            //tshark -T fields -e _ws.col.Protocol -e _ws.col.Info -r cap_canal3_1676913712
+            String cmd = "capinfos "+captureFolder+"/"+file;
+            Process proc = null;
+            try {
+                proc = createProcess(cmd);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ArrayList<String> out = new ArrayList<>();
+            ArrayList<Integer> subdata = new ArrayList<>();
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            // Read the output from the command
+            String s = null;
+            try {
+                while ((s = stdInput.readLine()) != null) {
+                    out.add(s);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String npacks = out.get(listContains(out, "Number of packets = ")).replaceAll("\\s+","");
+            subdata.add(Integer.parseInt(npacks.substring(npacks.lastIndexOf("=") + 1)));
+
+            String datarate = out.get(listContains(out, "Data byte rate:")).replaceAll("\\s+","");
+            subdata.add(Integer.parseInt(datarate.substring(datarate.lastIndexOf(":") + 1 , datarate.lastIndexOf("kBps"))));
+
+            String packrate = out.get(listContains(out, "Average packet rate:")).replaceAll("\\s+","");
+            subdata.add(Integer.parseInt(packrate.substring(packrate.lastIndexOf(":") + 1 , packrate.lastIndexOf("packets/s"))));
+
+            String packsize = out.get(listContains(out, "Average packet size:")).replaceAll("\\s+","");
+            if(packsize.contains(",")){
+                packsize = packsize.substring(packsize.lastIndexOf(":") + 1, packsize.lastIndexOf(","));
+            }else{
+                packsize = packsize.substring(packsize.lastIndexOf(":") + 1, packsize.lastIndexOf("bytes"));
+            }
+            subdata.add(Integer.parseInt(packsize));
+
+            this.data = subdata;
+        }
+    }
+
+    public ArrayList<String> grabacionesPackets() throws IOException, InterruptedException{
+        log.addInfo("Obteniendo información de paquetes de grabaciones existentes...");
+        ArrayList<String> out = new ArrayList<>();
+        ArrayList<ArrayList<String>> in = DB.getRecordsFiles();
+
+        ArrayList<String> data = in.get(0);
+
+        for(int i=0; i<data.size(); i++){
+            String[] files = data.get(i).split(";");
+            boolean allFiles = true;
+
+            for(int x=0; x<files.length; x++){
+                File f = new File(captureFolder+"/"+files[x]);
+                if(!f.exists()){
+                    allFiles = false;
+                }
+            }
+
+            out.add("?");
+            out.add(Integer.toString(i+1));
+
+            if(!allFiles){
+                out.add("ERROR");
+                log.addWarning("Aviso: faltan paquetes en la grabación nº"+i);
+            }else{
+                log.addWarning("Obteniendo datos de paquetes de la grabación nº"+i);
+                ArrayList<String> subdata = getCapPacks(files);
+                log.addWarning("Datos de paquetes de grabación nº"+i+" obtenidos correctamente");
+                for(int x=0; x<subdata.size(); x++){
+                    out.add(subdata.get(x));
+                }
+            }
+        }
+
+        return out;
+    }
+
+    private ArrayList<String> getCapPacks(String[] files) throws IOException, InterruptedException{
+        ArrayList<String> data = new ArrayList<>();
+        ArrayList<TaskCapPacks> runs = new ArrayList<>();
+
+        for(int x=0; x<files.length; x++){
+            String file = files[x];
+            runs.add(new TaskCapPacks(file));
+            runs.get(x).start();
+        }
+
+        TimeUnit.SECONDS.sleep(3);
+
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        for(int i=0; i<files.length; i++){
+            HashMap<String, Integer> subdata = runs.get(i).data;
+            for (String clave:subdata.keySet()) {
+                int num = subdata.get(clave);
+                if(map.containsKey(clave)){
+                    num+=map.get(clave);
+                }
+                map.put(clave, num);
+            }
+        }
+
+        for (String clave:map.keySet()) {
+            data.add(clave);
+            data.add(Integer.toString(map.get(clave)));
+        }
+        return data;
+    }
+
+    static class TaskCapPacks extends Thread{
+        String file;
+        HashMap<String, Integer> data;
+
+        TaskCapPacks(String f){
+            super(f);
+            this.file = f;
+            this.data = new HashMap<String, Integer>();
+        }
+
+        @Override
+        public void run(){
+            String cmd = "tshark -T fields -e _ws.col.Protocol -e _ws.col.Info -r "+captureFolder+"/"+file;
+            Process proc = null;
+            try {
+                proc = createProcess(cmd);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            HashMap<String, Integer> subdata = new HashMap<String, Integer>();
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            // Read the output from the command
+            String s = null;
+            try {
+                while ((s = stdInput.readLine()) != null) {
+                    if(s.contains("\t")){
+                        String p = s.substring(0, s.indexOf('\t'));
+                        int num = 1;
+
+                        if(subdata.containsKey(p)){
+                            num+=subdata.get(p);
+                        }
+
+                        subdata.put(p, num);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            this.data = subdata;
+        }
     }
 
     //CREAR PROCESO
@@ -666,6 +891,16 @@ public class CaptureSystem {
         processBuilder.redirectErrorStream(true);
 
         return processBuilder.start();
+    }
+
+    private static Integer listContains(ArrayList<String> list, String str){
+        for(int i=0; i<list.size(); i++){
+            if(list.get(i).contains(str)){
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     static class Canales{
