@@ -23,6 +23,7 @@ import TableRow from '@mui/material/TableRow';
 
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 
 import {styled} from '@mui/material/styles';
@@ -60,7 +61,7 @@ const darkTheme = createTheme({
     },
 });
 
-export default function DataGrab(){
+export default function DataGrab({redirect}){
     const [loading, setLoading] = useState(true);
     const [grabaciones, setGrabaciones] = useState([]);
     const [error,setError] = useState("false");
@@ -305,6 +306,7 @@ export default function DataGrab(){
                     <TableCell align="right"><b>Archivos</b></TableCell>
                     <TableCell align="right"><b>Tamaño&nbsp;(MBs)</b></TableCell>
                     <TableCell align="right"></TableCell>
+                    <TableCell align="right"></TableCell>
                 </TableRow>
                 </TableHead>
                 <TableBody>
@@ -333,6 +335,11 @@ export default function DataGrab(){
                     <TableCell align="right">
                         <IconButton aria-label="delete" sx={{backgroundColor:'white'}} onClick={() => handleOpenNormalDelete(g)}>
                             <DeleteIcon sx={{color:'#FC1208'}}/>
+                        </IconButton>
+                    </TableCell>
+                    <TableCell align="right">
+                        <IconButton aria-label="delete" sx={{backgroundColor:'white'}} onClick={() => redirect(g.id)}>
+                            <QueryStatsIcon sx={{color:'rgb(93, 193, 185)'}}/>
                         </IconButton>
                     </TableCell>
                     </TableRow>

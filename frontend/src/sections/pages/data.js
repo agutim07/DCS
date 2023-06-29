@@ -2,46 +2,20 @@ import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import MuiAlert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
-import LinearProgress from '@mui/material/LinearProgress';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
-import TextField from '@mui/material/TextField';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import Chip from '@mui/material/Chip';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import TocIcon from '@mui/icons-material/Toc';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 
-import {styled} from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { alpha } from "@mui/material";
-import { useLocation , useNavigate } from 'react-router-dom'
+import {useNavigate,useLocation} from 'react-router-dom'
 
 import {
     BrowserRouter as Router,
@@ -49,7 +23,6 @@ import {
     Route
 } from "react-router-dom";
 
-import axios from "axios";
 import DataGrab from './data_grab';
 import DataGraph from './data_graph';
 import DataStatus from './data_status';
@@ -69,20 +42,37 @@ const darkTheme = createTheme({
 
 export default function Data(){
     const navigate = useNavigate();
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const location = useLocation();
+
+    const [selectedIndex, setSelectedIndex] = React.useState(getIndex());
+    const [selected, setSelected] = useState(0);
+
+    function getIndex(){
+        if(location.pathname=='/datos/grabaciones'){return 0;}
+        if(location.pathname=='/datos/graficos'){return 1;}
+        if(location.pathname=='/datos/rendimiento'){return 2;}
+
+        return 0;
+    }
 
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
         if(index==0){navigate('/datos/grabaciones');}
-        if(index==1){navigate('/datos/graficos');}
+        if(index==1){setSelected(0); navigate('/datos/graficos');}
         if(index==2){navigate('/datos/rendimiento');}
     };
 
     useEffect(() => {
         if(selectedIndex==0){navigate('/datos/grabaciones');}
-        if(selectedIndex==1){navigate('/datos/graficos');}
+        if(selectedIndex==1){setSelected(0); navigate('/datos/graficos');}
         if(selectedIndex==2){navigate('/datos/rendimiento');}
     }, []);
+
+    function redirect(value){
+        setSelected(value);
+        setSelectedIndex(1);
+        navigate('/datos/graficos');
+    }
 
     return(
         <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center">
@@ -134,8 +124,8 @@ export default function Data(){
             </Grid>
             <Grid item xs={9}>
                 <Routes>
-                    <Route path="/grabaciones" element={<DataGrab/>} />
-                    <Route path="/graficos" element={<DataGraph/>} />
+                    <Route path="/grabaciones" element={<DataGrab redirect={redirect}/>} />
+                    <Route path="/graficos" element={<DataGraph selected={selected}/>} />
                     <Route path="/rendimiento" element={<DataStatus/>} />
                 </Routes>
             </Grid>

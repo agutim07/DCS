@@ -50,10 +50,14 @@ export default function Rep(){
                 const response = await axios.get(`/checkinstall?1`);
                 if(response.data!="OK"){
                     setError(response.data);
+                    setLoading(false);
+                    return;
                 }
+                checkChannels();
             } catch(e) {
                 setError("No se ha podido conectar con el backend");
                 console.log(e);
+                setLoading(false);
             } 
         }
 
@@ -82,11 +86,10 @@ export default function Rep(){
                 console.log(e);
             } 
             setLoading(false);
+            update();
         }
 
         checkInstallations();
-        checkChannels();
-        update();
     }, []);
 
     async function update() {

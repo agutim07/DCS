@@ -52,7 +52,7 @@ const ToggleButton = styled(MuiToggleButton)({
     }
 });
 
-export default function DataGraph(){
+export default function DataGraph({selected}){
     const [loading, setLoading] = useState(true);
     const [error,setError] = useState("false");
     
@@ -67,10 +67,14 @@ export default function DataGraph(){
                 const response = await axios.get(`/checkinstall?2`);
                 if(response.data!="OK"){
                     setError(response.data);
+                    setLoading(false);
+                    return;
                 }
+                getData();
             } catch(e) {
                 setError("No se ha podido conectar con el backend");
                 console.log(e);
+                setLoading(false);
             } 
         }
 
@@ -100,17 +104,16 @@ export default function DataGraph(){
                     setErrorGrabs(errorG);
                 }
             } catch(e) {
-                setError("No se ha podido conectar con el backend");
+                setError("Error al intentar recuperar los datos de las grabaciones");
                 console.log(e);
             } 
             setLoading(false);
         }
 
         checkInstallations();
-        getData();
     }, []);
 
-    const [grab, setGrab] = React.useState(0);
+    const [grab, setGrab] = React.useState(selected);
 
     const handleAlignment = (event, newAlignment) => {
         setGrab(newAlignment);
@@ -138,7 +141,7 @@ export default function DataGraph(){
                 if(op==1){
                     yData.push(data[i].datarate);
                     label1 = "Tasa de datos (por archivo de grabación)";
-                    label2 = "KiloBytes por segundo";
+                    label2 = "Bytes por segundo";
                 }
 
                 if(op==2){
@@ -215,7 +218,7 @@ export default function DataGraph(){
             ) : (
                 (error=="false") ? (
                     <div>
-                    <Typography sx={{fontSize:14,mb:1}}>Selecciona un canal para visualizar los gráficos con datos de sus grabaciones</Typography>
+                    <Typography sx={{fontSize:14,mb:1}}>Selecciona un ID de una grabación para visualizar gráficos con estadísticas</Typography>
                     <ToggleButtonGroup value={grab} exclusive onChange={handleAlignment}  sx={{mb:1}}>
                         {grabs.map((g) => (
                             <ToggleButton value={g}>
