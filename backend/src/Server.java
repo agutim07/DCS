@@ -985,8 +985,8 @@ public class Server{
                 }else{
                     int state = dataCaptureSystem.checkInstallationsGraph();
                     if(state==0){response.append("Faltan las instalaciones de tshark y wireshark para obtener los datos de las grabaciones");}
-                    if(state==1){response.append("Falta las instalacion de tshark para obtener los datos de las grabaciones");}
-                    if(state==2){response.append("Falta las instalacion de wireshark para obtener los datos de las grabaciones");}
+                    if(state==1){response.append("Falta la instalacion de tshark para obtener los datos de las grabaciones");}
+                    if(state==2){response.append("Falta la instalacion de wireshark para obtener los datos de las grabaciones");}
                     if(state==3){response.append("OK");}
                     
                 }
@@ -998,8 +998,8 @@ public class Server{
                 }else{
                     int state = dataReplaySystem.checkInstallations();
                     if(state==0){response.append("Faltan las instalaciones de tcpreplay y wireshark para reproducir");}
-                    if(state==1){response.append("Falta las instalacion de tcpreplay para reproducir");}
-                    if(state==2){response.append("Falta las instalacion de wireshark para reproducir");}
+                    if(state==1){response.append("Falta la instalacion de tcpreplay para reproducir");}
+                    if(state==2){response.append("Falta la instalacion de wireshark para reproducir");}
                     if(state==3){response.append("OK");}
                     
                 }

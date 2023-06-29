@@ -666,7 +666,7 @@ public class ReplaySystem {
         String output1 = s1.hasNext() ? s1.next() : "";
         String[] lines1 = output1.split("\r\n|\r|\n");
 
-        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list wireshark").getInputStream()).useDelimiter("\\A");
+        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list --installed wireshark").getInputStream()).useDelimiter("\\A");
         String output2 = s2.hasNext() ? s2.next() : "";
         String[] lines2 = output2.split("\r\n|\r|\n");
 
