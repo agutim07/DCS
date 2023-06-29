@@ -25,6 +25,9 @@ public class CaptureSystem {
     
     private static LoggerSystem log;
     private static DataBase DB;
+
+    private static ArrayList<String> grabacionesData;
+    private static ArrayList<Integer> grabacionesInfo;
     
 
     public CaptureSystem(LoggerSystem inputLog, DataBase inputDB) throws FileNotFoundException, IOException{
@@ -49,6 +52,8 @@ public class CaptureSystem {
             grabacionTask.add(null);
         }
 
+        CaptureSystem.grabacionesData = new ArrayList<>(); 
+        CaptureSystem.grabacionesInfo = new ArrayList<>(); 
     }
 
     //INICIO DE GRABACIÓN NORMAL
@@ -128,7 +133,7 @@ public class CaptureSystem {
     }
 
     public static boolean checkInstallations() throws IOException {
-        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tcpdump").getInputStream()).useDelimiter("\\A");
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list --installed tcpdump").getInputStream()).useDelimiter("\\A");
         String output1 = s1.hasNext() ? s1.next() : "";
         String[] lines1 = output1.split("\r\n|\r|\n");
 
@@ -141,11 +146,11 @@ public class CaptureSystem {
 
     //chequeamos que tshark y wireshark esten instaladas
     public static int checkInstallationsGraph() throws IOException {
-        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list tshark").getInputStream()).useDelimiter("\\A");
+        Scanner s1 = new Scanner(Runtime.getRuntime().exec("apt list --installed tshark").getInputStream()).useDelimiter("\\A");
         String output1 = s1.hasNext() ? s1.next() : "";
         String[] lines1 = output1.split("\r\n|\r|\n");
 
-        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list wireshark").getInputStream()).useDelimiter("\\A");
+        Scanner s2 = new Scanner(Runtime.getRuntime().exec("apt list --installed wireshark").getInputStream()).useDelimiter("\\A");
         String output2 = s2.hasNext() ? s2.next() : "";
         String[] lines2 = output2.split("\r\n|\r|\n");
 
@@ -655,6 +660,21 @@ public class CaptureSystem {
 
         ArrayList<String> data = in.get(0);
 
+        if(grabacionesInfo.size()!=0 && grabacionesData.size()!=0){
+            boolean equal = true;
+
+            for(int i=0; i<data.size(); i++){
+                if(!data.get(i).equals(grabacionesData.get(i))){
+                    equal = false;
+                }
+            }
+
+            if(equal){
+                return grabacionesInfo;
+            }
+        }
+
+        CaptureSystem.grabacionesData = data;
         for(int i=0; i<data.size(); i++){
             String[] files = data.get(i).split(";");
             boolean allFiles = true;
@@ -683,6 +703,7 @@ public class CaptureSystem {
             }
         }
 
+        CaptureSystem.grabacionesInfo = out;
         return out;
     }
 
@@ -745,7 +766,12 @@ public class CaptureSystem {
             subdata.add(Integer.parseInt(npacks.substring(npacks.lastIndexOf("=") + 1)));
 
             String datarate = out.get(listContains(out, "Data byte rate:")).replaceAll("\\s+","");
-            subdata.add(Integer.parseInt(datarate.substring(datarate.lastIndexOf(":") + 1 , datarate.lastIndexOf("kBps"))));
+            if(datarate.contains("kBps")){
+                subdata.add(Integer.parseInt(datarate.substring(datarate.lastIndexOf(":") + 1 , datarate.lastIndexOf("kBps")))*1000);
+            }else{
+                subdata.add(Integer.parseInt(datarate.substring(datarate.lastIndexOf(":") + 1 , datarate.lastIndexOf("bytes/s")).replaceAll("\\.","")));
+            }
+            
 
             String packrate = out.get(listContains(out, "Average packet rate:")).replaceAll("\\s+","");
             subdata.add(Integer.parseInt(packrate.substring(packrate.lastIndexOf(":") + 1 , packrate.lastIndexOf("packets/s"))));
