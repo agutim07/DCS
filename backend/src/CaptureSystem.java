@@ -27,7 +27,9 @@ public class CaptureSystem {
     private static DataBase DB;
 
     private static ArrayList<String> grabacionesData;
+    private static ArrayList<String> grabacionesData2;
     private static ArrayList<Integer> grabacionesInfo;
+    private static ArrayList<String> grabacionesPackets;
     
 
     public CaptureSystem(LoggerSystem inputLog, DataBase inputDB) throws FileNotFoundException, IOException{
@@ -53,7 +55,9 @@ public class CaptureSystem {
         }
 
         CaptureSystem.grabacionesData = new ArrayList<>(); 
+        CaptureSystem.grabacionesData2 = new ArrayList<>(); 
         CaptureSystem.grabacionesInfo = new ArrayList<>(); 
+        CaptureSystem.grabacionesPackets = new ArrayList<>();
     }
 
     //INICIO DE GRABACIÓN NORMAL
@@ -795,6 +799,22 @@ public class CaptureSystem {
 
         ArrayList<String> data = in.get(0);
 
+        
+        if(grabacionesPackets.size()!=0 && grabacionesData2.size()!=0){
+            boolean equal = true;
+
+            for(int i=0; i<data.size(); i++){
+                if(!data.get(i).equals(grabacionesData2.get(i))){
+                    equal = false;
+                }
+            }
+
+            if(equal){
+                return grabacionesPackets;
+            }
+        }
+
+        CaptureSystem.grabacionesData2 = data;
         for(int i=0; i<data.size(); i++){
             String[] files = data.get(i).split(";");
             boolean allFiles = true;
@@ -822,6 +842,7 @@ public class CaptureSystem {
             }
         }
 
+        CaptureSystem.grabacionesPackets = out;
         return out;
     }
 
