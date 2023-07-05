@@ -86,6 +86,7 @@ public class Server{
         server.createContext("/deleterecord", new DeleteHandler());
         server.createContext("/checkintegrity", new CheckIntegrityHandler());
         server.createContext("/recordinfo", new RecordInfoHandler());
+        server.createContext("/systemstatus", new SystemStatusHandler());
         server.setExecutor(null); // creamos un ejecutador por defecto
         server.start();
 
@@ -1228,6 +1229,28 @@ public class Server{
                         response.append(" (se recomienda añadir canales desde un SO Linux)");
                     }
                 }
+            }
+
+            Server.writeResponse(httpExchange, response.toString(),code);
+        }
+    }
+
+    static class SystemStatusHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            //inicializamos el codigo de respuesta que proporcionará HTTP: en 200, que es el de éxito
+            int code = 200;
+            StringBuilder response = new StringBuilder();
+
+            if(!logged){
+                //si no se ha inciado sesion no se podrá acceder a esta sección, devolvemos el código 401: unauthorized
+                log.addWarning("Intento de acceso a sección no permitido");
+                response.append(notLogged()); 
+                code=401;
+            }else{
+                log.addInfo("Se va a intentar obtener el estado del sistema");
+                ArrayList<Double> res = dataCaptureSystem.getSystemStatus();
+                response.append(res);
             }
 
             Server.writeResponse(httpExchange, response.toString(),code);
