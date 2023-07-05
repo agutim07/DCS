@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import MuiAlert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -28,11 +29,13 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import TocIcon from '@mui/icons-material/Toc';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
+import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import {styled} from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { alpha } from "@mui/material";
-import { useLocation , useNavigate } from 'react-router-dom'
+import ReactECharts from 'echarts-for-react';
 
 import axios from "axios";
 
@@ -43,6 +46,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 export default function DataStatus(){
     const [loading, setLoading] = useState(true);
     const [error,setError] = useState("false");
+    const [status,setStatus] = useState({});
 
     useEffect(() => {
         update();
@@ -50,14 +54,139 @@ export default function DataStatus(){
 
     async function update(){
         setLoading(true);
+        try {
+            const response = await axios.get(`/systemstatus`);
+            let dataArray = response.data;
+
+            let iter = {cpu:dataArray[0], memory:dataArray[1], space:dataArray[2], captures:dataArray[3]};
+            setStatus(iter);
+        } catch(e) {
+            setError("Error al intentar recuperar el estado del sistema");
+            console.log(e);
+        } 
         setLoading(false);
+    }
+
+    function getData(val,str){
+        const gaugeData = [
+            {
+              value: val,
+              name: str,
+              title: {
+                color: 'black',
+                offsetCenter: ['0%', '-25%']
+              },
+              detail: {
+                valueAnimation: true,
+                offsetCenter: ['0%', '0%']
+              }
+            },
+        ];
+
+        return gaugeData;
+    }
+    
+
+    function getOption(op){
+        let statusValue;
+        let col;
+        
+        if(op==0){statusValue=getData(Math.round(status.cpu*100),"Uso de CPU"); col='#D10000';}
+        if(op==1){statusValue=getData(Math.round(status.memory*100),"Uso de memoria"); col='#C6B79B';}
+
+        let option = {
+            textStyle: {
+                fontFamily: 'Copperplate Gothic Light'
+            },
+            series: [
+              {
+                type: 'gauge',
+                startAngle: 90,
+                endAngle: -270,
+                pointer: {
+                  show: false
+                },
+                progress: {
+                  show: true,
+                  overlap: false,
+                  roundCap: true,
+                  clip: false,
+                  itemStyle: {
+                    color: col,
+                    borderWidth: 1,
+                    borderColor: '#464646'
+                  }
+                },
+                axisLine: {
+                  lineStyle: {
+                    width: 20
+                  }
+                },
+                splitLine: {
+                  show: false,
+                  distance: 0,
+                  length: 10
+                },
+                axisTick: {
+                  show: false
+                },
+                axisLabel: {
+                  show: false,
+                  distance: 50
+                },
+                data: statusValue,
+                title: {
+                  fontSize: 12
+                },
+                detail: {
+                  width: 50,
+                  height: 14,
+                  fontSize: 14,
+                  color: col,
+                  borderColor: col,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  formatter: '{value}%'
+                }
+              }
+            ]
+          };
+
+          return option;
     }
 
     return(
         <Grid container spacing={0} direction="column">
-        {(error=="false" && !loading) ? (
-        <Typography>Status</Typography>
-        ) : ""}
+        <Box sx={{textAlign: 'center'}}>
+            {(loading) ? (
+                <Grid container direction="column" alignItems="center" justifyContent="center">
+                    <CircularProgress style={{'color': '#ED7D31'}} />
+                </Grid>
+            ) : (
+                (error=="false") ? (
+                    <div>
+                    <IconButton onClick={update} sx={{mb:2}}>
+                        <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
+                    </IconButton>
+                    <Grid container direction='row'>
+                        <Grid item xs={6}>
+                            <ReactECharts option={getOption(0)}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ReactECharts option={getOption(1)}/>
+                        </Grid>
+                    </Grid>
+                    </div>
+                ) : (
+                    <Box display="flex" justifyContent="center" alignItems="center">
+                        <Alert severity="error">
+                        <AlertTitle>Error</AlertTitle>
+                        <strong>{error}</strong>
+                        </Alert>
+                    </Box>
+                )
+            )}
+        </Box>
         </Grid>
     );
 }
