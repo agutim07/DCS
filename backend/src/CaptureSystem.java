@@ -1,4 +1,6 @@
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import com.sun.management.OperatingSystemMXBean;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -921,6 +923,35 @@ public class CaptureSystem {
 
             this.data = subdata;
         }
+    }
+
+    public static ArrayList<Double> getSystemStatus(){
+        ArrayList<Double> status = new ArrayList<>();
+
+        try{
+            OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+            double try1 = osBean.getSystemCpuLoad();
+
+            TimeUnit.MILLISECONDS.sleep(500);
+
+            status.add(osBean.getSystemCpuLoad());
+            status.add((double) (osBean.getTotalPhysicalMemorySize()-osBean.getFreePhysicalMemorySize())/osBean.getTotalPhysicalMemorySize());
+
+            File[] drives = captureFolder.listRoots();
+            double usable = 0.0;
+            if (drives != null && drives.length > 0) {
+                for (File aDrive : drives) {
+                    usable+=aDrive.getUsableSpace()*0.000001;
+                }
+            }
+
+            status.add(usable);
+            status.add((double) getFolderMB(captureFolder));
+        }catch (Exception e){
+            System.out.println(e);
+        }
+
+        return status;
     }
 
     //CREAR PROCESO
