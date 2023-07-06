@@ -548,8 +548,8 @@ export default function DataGraph({selected}){
                         <ReactECharts option={getOption(0)}/>
                         <ReactECharts option={getOptionPacks()}/>
                         <ReactECharts option={getOption(2)}/>
-                        <ReactECharts option={getOption(1)}/>
                         <ReactECharts option={getOption(3)}/>
+                        <ReactECharts option={getOption(1)}/>
                         </div>
                     ) : ""}
                     {(grabs.includes(grab) && errorGrabs.includes(grab)) ? (

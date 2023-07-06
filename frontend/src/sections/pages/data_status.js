@@ -30,7 +30,7 @@ import TocIcon from '@mui/icons-material/Toc';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 import IconButton from '@mui/material/IconButton';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import SyncIcon from '@mui/icons-material/Sync';
 
 import {styled} from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -58,7 +58,7 @@ export default function DataStatus(){
             const response = await axios.get(`/systemstatus`);
             let dataArray = response.data;
 
-            let iter = {cpu:dataArray[0], memory:dataArray[1], space:dataArray[2], captures:dataArray[3]};
+            let iter = {cpu:dataArray[0], memory:dataArray[1], space:dataArray[2], captures:dataArray[3], maxMBs:dataArray[4]};
             setStatus(iter);
         } catch(e) {
             setError("Error al intentar recuperar el estado del sistema");
@@ -73,7 +73,7 @@ export default function DataStatus(){
               value: val,
               name: str,
               title: {
-                color: 'black',
+                color: 'white',
                 offsetCenter: ['0%', '-25%']
               },
               detail: {
@@ -85,7 +85,6 @@ export default function DataStatus(){
 
         return gaugeData;
     }
-    
 
     function getOption(op){
         let statusValue;
@@ -155,25 +154,133 @@ export default function DataStatus(){
           return option;
     }
 
+    function getOptionSpace(){
+      const fullSpace =  Math.round(status.space);
+      const caps =  Math.round(status.captures);
+      const autom =  Math.round(status.maxMBs);
+
+      const gaugeData = [
+        {
+          value: caps,
+          name: 'Capturas',
+          title: {
+            color: 'white',
+            offsetCenter: ['0%', '-65%']
+          },
+          detail: {
+            valueAnimation: true,
+            offsetCenter: ['0%', '-45%']
+          }
+        },
+        {
+          value: autom,
+          name: 'Borrado automático',
+          title: {
+            color: 'white',
+            offsetCenter: ['0%', '-15%']
+          },
+          detail: {
+            valueAnimation: true,
+            offsetCenter: ['0%', '5%']
+          }
+        },
+        {
+          name: 'Espacio libre',
+          title: {
+            color: 'white',
+            offsetCenter: ['0%', '35%']
+          },
+          detail: {
+            valueAnimation: true,
+            offsetCenter: ['0%', '55%']
+          }
+        },
+      ];
+
+      let option = {
+          textStyle: {
+              fontFamily: 'Copperplate Gothic Light'
+          },
+          series: [
+            {
+              type: 'gauge',
+              min: 0,
+              max: fullSpace+caps,
+              startAngle: 90,
+              endAngle: -270,
+              pointer: {
+                show: false
+              },
+              progress: {
+                show: false
+              },
+              axisLine: {
+                roundCap: true,
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [caps/(fullSpace+caps), '#0096FF'],
+                    [autom/(fullSpace+caps), '#F88379	'],
+                    [1, 'white']
+                  ]
+                }
+              },
+              splitLine: {
+                show: false,
+                distance: 0,
+                length: 10
+              },
+              axisTick: {
+                show: false
+              },
+              axisLabel: {
+                show: false,
+                distance: 50
+              },
+              data: gaugeData,
+              title: {
+                fontSize: 10
+              },
+              detail: {
+                width: 60,
+                height: 14,
+                fontSize: 14,
+                backgroundColor: 'inherit',
+                borderRadius: 3,
+                formatter: function (value) {
+                  if(isNaN(parseFloat(value))){return fullSpace+'MBs';}
+                  return value+'MBs';
+                }
+              }
+            }
+          ]
+        };
+
+        return option;
+  }
+
     return(
         <Grid container spacing={0} direction="column">
-        <Box sx={{textAlign: 'center'}}>
+        <Box sx={{textAlign: 'center', backgroundColor:'#2c343c' , borderRadius: '10px'}}>
             {(loading) ? (
-                <Grid container direction="column" alignItems="center" justifyContent="center">
+                <Grid container sx={{my:2}} direction="column" alignItems="center" justifyContent="center">
                     <CircularProgress style={{'color': '#ED7D31'}} />
                 </Grid>
             ) : (
                 (error=="false") ? (
                     <div>
-                    <IconButton onClick={update} sx={{mb:2}}>
-                        <RefreshIcon sx={{color:'#ED7D31'}} fontSize="large"/>
+                    <IconButton onClick={update}>
+                        <SyncIcon sx={{color:'#ED7D31'}} fontSize="large"/>
                     </IconButton>
                     <Grid container direction='row'>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                             <ReactECharts option={getOption(0)}/>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                             <ReactECharts option={getOption(1)}/>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <ReactECharts option={getOptionSpace()}/>
                         </Grid>
                     </Grid>
                     </div>
