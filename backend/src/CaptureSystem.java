@@ -947,6 +947,7 @@ public class CaptureSystem {
 
             status.add(usable);
             status.add((double) getFolderMB(captureFolder));
+            status.add((double) maxMBs);
         }catch (Exception e){
             System.out.println(e);
         }
