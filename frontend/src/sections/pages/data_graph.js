@@ -148,7 +148,7 @@ export default function DataGraph({selected}){
                     setGrabs(g.sort(function(a, b){return a-b}));
                     setErrorGrabs(errorG);
 
-                    setProgress(50);
+                    setProgress(60);
                     getDataPackets();
                 }
             } catch(e) {
@@ -507,7 +507,7 @@ export default function DataGraph({selected}){
                         {(getGrabOneFile()) ? (
                             <Box display="flex" justifyContent="center" alignItems="center" sx={{mt:1}}>
                                 <Alert severity="warning">
-                                <strong>Esta grabación solo tiene un archivo. Los gráficos no están recomendados para este tipo de grabaciones.</strong>
+                                <strong>Esta grabación solo tiene un archivo. Los gráficos no están hechos para este tipo de grabaciones.</strong>
                                 </Alert>
                             </Box>
                         ) : ""}
