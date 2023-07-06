@@ -791,6 +791,7 @@ public class CaptureSystem {
             subdata.add(Integer.parseInt(packsize));
 
             this.data = subdata;
+            proc.destroy();
         }
     }
 
@@ -922,6 +923,7 @@ public class CaptureSystem {
             }
 
             this.data = subdata;
+            proc.destroy();
         }
     }
 
