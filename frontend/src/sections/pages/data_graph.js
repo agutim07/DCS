@@ -179,7 +179,7 @@ export default function DataGraph({selected}){
                             i+=2;
                         }else{
                             let map = new Map();
-                            while(dataArray[i]!='?'){
+                            while(i<dataArray.length && dataArray[i]!='?'){
                                 map.set(dataArray[i],parseInt(dataArray[i+1]));
                                 i+=2;
                             }
