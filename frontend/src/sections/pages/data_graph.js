@@ -397,11 +397,6 @@ export default function DataGraph({selected}){
                 color: 'black'
               }
             },
-            dataZoom: [
-              {
-                type: 'inside'
-              }
-            ],
             series: [
               {
                 name: 'Número de paquetes con el protocolo',
