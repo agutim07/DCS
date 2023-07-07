@@ -795,7 +795,7 @@ public class CaptureSystem {
         }
     }
 
-    public ArrayList<String> grabacionesPackets() throws IOException, InterruptedException{
+    public ArrayList<String> grabacionesPackets(boolean forzar) throws IOException, InterruptedException{
         log.addInfo("Obteniendo información de paquetes de grabaciones existentes...");
         ArrayList<String> out = new ArrayList<>();
         ArrayList<ArrayList<String>> in = DB.getRecordsFiles();
@@ -803,7 +803,7 @@ public class CaptureSystem {
         ArrayList<String> data = in.get(0);
 
         
-        if(grabacionesPackets.size()!=0 && grabacionesData2.size()!=0){
+        if(!forzar && grabacionesPackets.size()!=0 && grabacionesData2.size()!=0){
             boolean equal = true;
 
             for(int i=0; i<data.size(); i++){

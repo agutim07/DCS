@@ -459,10 +459,15 @@ public class Server{
                     }else{
                         response.append(info);
                     }
-                }else{
+                }
+                if(tipo>=1){
                     ArrayList<String> info = new ArrayList<>();
                     try {
-                        info = dataCaptureSystem.grabacionesPackets();
+                        if(tipo==2){
+                            info = dataCaptureSystem.grabacionesPackets(true);
+                        }else{
+                            info = dataCaptureSystem.grabacionesPackets(false);
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
