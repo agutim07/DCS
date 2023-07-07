@@ -66,6 +66,8 @@ export default function DataGrab({redirect}){
     const [grabaciones, setGrabaciones] = useState([]);
     const [error,setError] = useState("false");
 
+    const [ordenar, setOrdenar] = React.useState(0);
+
     useEffect(() => {
         update();
     }, []);
@@ -88,7 +90,15 @@ export default function DataGrab({redirect}){
                     arrayGrabaciones.push(temp);
                 };
 
-                arrayGrabaciones.sort(compareID);
+                switch(ordenar){
+                    case 0: arrayGrabaciones.sort(compareID); break;
+                    case 1: arrayGrabaciones.sort(compareCanal); break;
+                    case 2: arrayGrabaciones.sort(compareDuracion); break;
+                    case 3: arrayGrabaciones.sort(compareAnt); break;
+                    case 4: arrayGrabaciones.sort(compareArchivos); break;
+                    case 5: arrayGrabaciones.sort(compareTam); break;
+                    default: break;
+                }
                 setGrabaciones(arrayGrabaciones);
             }
         } catch(e) {
@@ -130,8 +140,6 @@ export default function DataGrab({redirect}){
         var out = new Date(seconds * 1000).toISOString().substring(inicio, 19);
         return out;
     }
-
-    const [ordenar, setOrdenar] = React.useState(0);
 
     const handleChange = (event) => {
         setOrdenar(event.target.value);
@@ -333,12 +341,12 @@ export default function DataGrab({redirect}){
                         <TableCell align="right"><b>Compruebe integridad</b></TableCell>
                     )}
                     <TableCell align="right">
-                        <IconButton aria-label="delete" sx={{backgroundColor:'white'}} onClick={() => handleOpenNormalDelete(g)}>
+                        <IconButton aria-label="delete" sx={{backgroundColor:'white', "&:hover": {backgroundColor:'black'}}} onClick={() => handleOpenNormalDelete(g)}>
                             <DeleteIcon sx={{color:'#FC1208'}}/>
                         </IconButton>
                     </TableCell>
                     <TableCell align="right">
-                        <IconButton aria-label="delete" sx={{backgroundColor:'white'}} onClick={() => redirect(g.id)}>
+                        <IconButton aria-label="delete" sx={{backgroundColor:'white', "&:hover": {backgroundColor:'black'}}} onClick={() => redirect(g.id)}>
                             <QueryStatsIcon sx={{color:'rgb(93, 193, 185)'}}/>
                         </IconButton>
                     </TableCell>

@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import MuiAlert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -15,6 +16,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -32,6 +34,7 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import TocIcon from '@mui/icons-material/Toc';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 import {styled} from '@mui/material/styles';
 import PropTypes from 'prop-types';
@@ -177,6 +180,12 @@ export default function DataGraph({selected}){
                         i++;
                         if(dataArray[i]=="ERROR"){
                             i+=2;
+                        }else if(dataArray[i]=='?'){
+                            let map = new Map();
+                            map.set("ERROR",0);
+                            let iter = {id:iterID, packs:map};
+                            dataArray1.push(iter);
+                            i++;
                         }else{
                             let map = new Map();
                             while(i<dataArray.length && dataArray[i]!='?'){
@@ -434,6 +443,31 @@ export default function DataGraph({selected}){
         return option;
     }
 
+    function checkPackError(){
+        let packs = 0;
+
+        for(let i=0; i<dataP.length; i++){
+            if(dataP[i].id==grab){
+                for (var [key, value] of dataP[i].packs) {
+                    if(key=="ERROR"){
+                        return true;
+                    }
+                    packs+=value;
+                }
+            }
+        }
+
+        for(let i=0; i<data.length; i++){
+            if(data[i].id==grab){
+                if(data[i].npacks>packs){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     function getGrabOneFile(){
         let archivo = 0;
 
@@ -480,6 +514,55 @@ export default function DataGraph({selected}){
         return out;
     }
 
+    const [loading2, setLoading2] = useState(false);
+
+    async function reDataPackets() {
+        setLoading2(true);
+
+        try {
+            const response = await axios.get(`/recordinfo?2`);
+            if(response.data=="empty"){
+                setError("No se ha encontrado ninguna grabación");
+            }else{
+                var res = response.data.replace("[", "");
+                res = res.replace("]", "");
+                const dataArray = res.split(", ");
+                const dataArray1 = [];
+
+                let i=1;
+                while(i<dataArray.length) {
+                    let iterID = dataArray[i];
+                    i++;
+                    if(dataArray[i]=="ERROR"){
+                        i+=2;
+                    }else if(dataArray[i]=='?'){
+                        let map = new Map();
+                        map.set("ERROR",0);
+                        let iter = {id:iterID, packs:map};
+                        dataArray1.push(iter);
+                        i++;
+                    }else{
+                        let map = new Map();
+                        while(i<dataArray.length && dataArray[i]!='?'){
+                            map.set(dataArray[i],parseInt(dataArray[i+1]));
+                            i+=2;
+                        }
+                        i++;
+                        let iter = {id:iterID, packs:map};
+                        dataArray1.push(iter);
+                    }
+                }
+
+                setDataP(dataArray1);
+            }
+        } catch(e) {
+            setError("Error al intentar recuperar los paquetes de las grabaciones");
+            console.log(e);
+        } 
+
+        setLoading2(false);
+    }
+
     return(
         <Grid container spacing={0} direction="column">
         <Box sx={{textAlign: 'center'}}>
@@ -487,7 +570,7 @@ export default function DataGraph({selected}){
                 <Grid container direction="column" alignItems="center" justifyContent="center">
                     <Alert severity="info" sx={{mb:2}}>
                         <AlertTitle>Aviso</AlertTitle>
-                        <strong>Este proceso puede tardar un rato si hay muchas grabaciones</strong>
+                        <strong>Este proceso puede tardar un rato si hay muchas grabaciones. No salga de la página hasta que finalice</strong>
                     </Alert>
                     <CircularProgressWithLabel value={progress} style={{'color': '#ED7D31'}} />
                 </Grid>
@@ -546,7 +629,31 @@ export default function DataGraph({selected}){
                         </TableContainer>
                         
                         <ReactECharts option={getOption(0)}/>
-                        <ReactECharts option={getOptionPacks()}/>
+                        {(loading2) ? (
+                            <Grid container spacing={0} direction="row" alignItems="center" justifyContent="center">
+                            <Box sx={{width: '60%', mt:2 }}>
+                                <Typography sx={{fontSize:20, mb:2}}><b>Tipos de paquetes</b></Typography>
+                                <LinearProgress sx={{mb:2, backgroundColor: "#ED7D31", "& .MuiLinearProgress-bar": {backgroundColor: "#F3D2BB"} }}/>
+                            </Box>
+                            </Grid>
+                        ) : (
+                            <div>
+                            {(checkPackError()) ? (
+                                <Grid container spacing={0} direction="column" justifyContent="center" alignItems="center" sx={{mt:2,mb:1}}>
+                                    <Typography sx={{fontSize:20}}><b>Tipos de paquetes</b></Typography>
+                                    <Alert severity="error" sx={{my:1}}>
+                                        <strong>Aviso: se ha producido un error al recuperar los paquetes de esta grabación</strong>
+                                    </Alert>
+                                    <Button onClick={reDataPackets} endIcon={<BarChartIcon />} type="submit" variant="contained" sx={{ color:'black', width:'25%', bgcolor:"#E9A272", '&:hover': {backgroundColor: '#ED7D31', }}}>
+                                        Intentar de nuevo
+                                    </Button>
+                                </Grid>
+                            ) : (
+                                <ReactECharts option={getOptionPacks()}/>
+                            )}
+                            </div>
+                        )}
+                        
                         <ReactECharts option={getOption(2)}/>
                         <ReactECharts option={getOption(3)}/>
                         <ReactECharts option={getOption(1)}/>
