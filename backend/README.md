@@ -2,7 +2,7 @@ DCS - Data Capture System - Backend
 
 ○ Instalaciones necesarias:
 
-    • Java: JDK y JRE (mínimo Java 8).
+    • Java: JDK y JRE (mínimo Java 20) => Añadir la direcciçon carpeta jdk instalada a la variable del entorno del sistema PATH
     • En la carpeta lib se debe incluir el .jar de SQLite JDBC
     Para Linux:
         • Tcpdump

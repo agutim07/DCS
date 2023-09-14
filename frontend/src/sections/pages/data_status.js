@@ -248,7 +248,9 @@ export default function DataStatus(){
                 backgroundColor: 'inherit',
                 borderRadius: 3,
                 formatter: function (value) {
+                  if(isNaN(parseFloat(value) && fullSpace>9999)){return parseInt((fullSpace/1024))+'GBs';}
                   if(isNaN(parseFloat(value))){return fullSpace+'MBs';}
+                  if(value>9999){return (value/1024)+'GBs';}
                   return value+'MBs';
                 }
               }
